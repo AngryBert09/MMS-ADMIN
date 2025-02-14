@@ -1,15 +1,16 @@
 <div class="header header-one">
     <div class="header-left header-left-one">
         <a href="{{ route('dashboard') }}" class="logo">
-            <img src="img/greatwall-logo.png" alt="Logo">
+            <img src="{{ asset('img/greatwall-logo.png') }}" alt="Logo">
         </a>
-        <a href="index.html" class="white-logo">
-            <img src="assets/img/logo-white.png" alt="Logo">
+        <a href="{{ route('dashboard') }}" class="white-logo">
+            <img src="{{ asset('img/greatwall-logo.png') }}" alt="Logo">
         </a>
-        <a href="index.html" class="logo logo-small">
-            <img src="assets/img/logo-small.png" alt="Logo" width="30" height="30">
+        <a href="{{ route('dashboard') }}" class="logo logo-small">
+            <img src="{{ asset('img/greatwall-logo.png') }}" alt="Logo">
         </a>
     </div>
+
     <a href="javascript:void(0);" id="toggle_btn">
         <i class="fas fa-bars"></i>
     </a>
@@ -23,25 +24,7 @@
         <i class="fas fa-bars"></i>
     </a>
     <ul class="nav nav-tabs user-menu">
-        <li class="nav-item dropdown has-arrow flag-nav">
-            <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button">
-                <img src="assets/img/flags/us.png" alt="" height="20"> <span>English</span>
-            </a>
-            <div class="dropdown-menu dropdown-menu-right">
-                <a href="javascript:void(0);" class="dropdown-item">
-                    <img src="assets/img/flags/us.png" alt="" height="16"> English
-                </a>
-                <a href="javascript:void(0);" class="dropdown-item">
-                    <img src="assets/img/flags/fr.png" alt="" height="16"> French
-                </a>
-                <a href="javascript:void(0);" class="dropdown-item">
-                    <img src="assets/img/flags/es.png" alt="" height="16"> Spanish
-                </a>
-                <a href="javascript:void(0);" class="dropdown-item">
-                    <img src="assets/img/flags/de.png" alt="" height="16"> German
-                </a>
-            </div>
-        </li>
+
 
         <li class="nav-item dropdown">
             <a href="#" class="dropdown-toggle nav-link" data-bs-toggle="dropdown">
@@ -154,7 +137,8 @@
                 <span>Admin</span>
             </a>
             <div class="dropdown-menu">
-                <a class="dropdown-item" href="profile.html"><i data-feather="user" class="me-1"></i>
+                <a class="dropdown-item" href="{{ route('profile.index') }}"><i data-feather="user"
+                        class="me-1"></i>
                     Profile</a>
                 <a class="dropdown-item" href="settings.html"><i data-feather="settings" class="me-1"></i>
                     Settings</a>

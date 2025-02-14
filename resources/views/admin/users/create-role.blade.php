@@ -13,17 +13,7 @@
 
         <div class="page-wrapper">
             <div class="content container-fluid">
-                <div class="page-header">
-                    <div class="row">
-                        <div class="col">
-                            <h3 class="page-title">Basic Inputs</h3>
-                            <ul class="breadcrumb">
-                                <li class="breadcrumb-item"><a href="index.html">Dashboard</a></li>
-                                <li class="breadcrumb-item active">Basic Inputs</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
+                @include('layout.breadcrumb')
 
                 <div class="row">
                     <div class="col-lg-12">

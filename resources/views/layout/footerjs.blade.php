@@ -7,6 +7,6 @@
 <script src="{{ asset('plugins/apexchart/chart-data.js') }}"></script>
 <script src="{{ asset('plugins/datatables/jquery.dataTables.min.js') }}"></script>
 <script src="{{ asset('plugins/datatables/datatables.min.js') }}"></script>
-<script src="{{ asset('plugins/sweetalert/sweetalert2.all.min.js') }} defer"></script>
-<script src="{{ asset('assets/plugins/sweetalert/sweetalerts.min.js') }} defer"></script>
+<script src="{{ asset('plugins/sweetalert/sweetalert2.all.min.js') }} "></script>
+<script src="{{ asset('plugins/sweetalert/sweetalerts.min.js') }}"></script>
 <script src="{{ asset('js/script.js') }}"></script>

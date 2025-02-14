@@ -13,29 +13,29 @@
             <div class="content container-fluid">
                 @include('layout.breadcrumb')
 
+                <script>
+                    document.addEventListener("DOMContentLoaded", function() {
+                        @if (session('success'))
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Success!',
+                                text: '{{ session('success') }}',
+                                showConfirmButton: false,
+                                timer: 3000
+                            });
+                        @endif
 
-                @if (session('success'))
-                    <script>
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Success!',
-                            text: '{{ session('success') }}',
-                            showConfirmButton: false,
-                            timer: 3000
-                        });
-                    </script>
-                @endif
+                        @if (session('error'))
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error!',
+                                text: '{{ session('error') }}',
+                                showConfirmButton: true
+                            });
+                        @endif
+                    });
+                </script>
 
-                @if (session('error'))
-                    <script>
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Error!',
-                            text: '{{ session('error') }}',
-                            showConfirmButton: true
-                        });
-                    </script>
-                @endif
                 <div class="row">
                     <div class="col-sm-12">
                         <div class="card card-table">

@@ -10,9 +10,10 @@
                     <a href="#"><i data-feather="user"></i> <span> Users</span> <span
                             class="menu-arrow"></span></a>
                     <ul>
-                        <li><a href="{{ route('create-roles') }}">Create Roles</a></li>
+                        <li><a href="{{ route('create.roles') }}">Create Roles</a></li>
                         <li><a href="{{ route('users.index') }}">User List</a></li>
-                        <li><a href="{{ route('users.index') }}">Upcoming users</a></li>
+                        <li><a href="{{ route('upcoming.users') }}">Upcoming users</a></li>
+                        <li><a href="{{ route('vendor.application') }}">Vendor Application</a></li>
                     </ul>
                 </li>
 

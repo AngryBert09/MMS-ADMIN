@@ -144,38 +144,55 @@ class UserController extends Controller
      */
     public function update(Request $request, User $user)
     {
-        // Validation rules with nullable fields
-        $request->validate([
-            'name' => 'nullable|string|max:255',
-            'email' => 'nullable|email|unique:users,email,' . $user->id,
-            'role' => 'nullable|string|in:admin,hr,vendor,user',
-            'status' => 'nullable|in:active,inactive',
-            'password' => 'nullable|min:6|confirmed',
-        ]);
+        // Log request data
+        Log::info('User update request', $request->all());
 
-        DB::beginTransaction(); // Start a transaction
+        // Validate incoming data
+        try {
+            $validated = $request->validate([
+                'name' => 'nullable|string|max:255',
+                'email' => 'nullable|email|unique:users,email,' . $user->id,
+                'role' => 'nullable|string',
+                'status' => 'nullable|in:active,inactive',
+                'password' => 'nullable|min:6|confirmed',
+            ]);
+            Log::info('Validation passed', ['validated' => $validated]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            Log::error('Validation failed', ['errors' => $e->errors()]);
+            throw $e;
+        }
+
+        DB::beginTransaction();
 
         try {
-            // Update fields only if they exist in the request
-            $updateData = array_filter($request->only(['name', 'email', 'role', 'status']), fn($value) => !is_null($value));
+            // Update only the provided fields except password
+            $user->update(collect($validated)->except('password')->toArray());
 
-            // Handle password update separately
+            // Update password only if provided
             if ($request->filled('password')) {
-                $updateData['password'] = Hash::make($request->password);
+                Log::debug('Password field is present, updating password');
+                $user->update(['password' => Hash::make($request->password)]);
             }
 
-            // Update the user record
-            $user->update($updateData);
+            DB::commit();
 
-            DB::commit(); // Commit changes
-
+            Log::info('User updated successfully', ['user_id' => $user->id]);
             return redirect()->route('users.index')->with('success', 'User updated successfully.');
         } catch (\Exception $e) {
-            DB::rollBack(); // Rollback on error
-            Log::error('Error updating user:', ['message' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
-            return redirect()->back()->withErrors(['error' => 'Something went wrong. Check logs.'])->withInput();
+            DB::rollBack();
+            Log::error('Failed to update user', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+            return redirect()->back()->withErrors(['error' => 'Failed to update user.'])->withInput();
         }
     }
+
+
+
+
+
+
 
 
     /**
@@ -183,9 +200,23 @@ class UserController extends Controller
      */
     public function destroy(User $user)
     {
+        // Check if the user is an admin
+        if ($user->role === 'admin') {
+            // Count the number of admins in the database
+            $adminCount = User::where('role', 'admin')->count();
+
+            // Prevent deletion if this is the only admin
+            if ($adminCount === 1) {
+                return redirect()->route('users.index')->with('error', 'Cannot delete the last admin user.');
+            }
+        }
+
+        // Proceed with deletion
         $user->delete();
+
         return redirect()->route('users.index')->with('success', 'User deleted successfully.');
     }
+
 
     public function getCreateRoles()
     { // Fetch all roles from the database
@@ -253,5 +284,17 @@ class UserController extends Controller
             Log::error('Error adding/updating role:', ['error' => $e->getMessage()]);
             return redirect()->route('create-roles')->with('error', 'An error occurred while processing the role.');
         }
+    }
+
+    public function getUpcomingUsers()
+    {
+        // API INTEGRATION FOR HR
+        return view('admin.users.upcoming-users');
+    }
+
+    public function getVendorApplications()
+    {
+        // API INTEGRATION FOR LOGISTIC
+        return view('admin.users.vendor-application');
     }
 }

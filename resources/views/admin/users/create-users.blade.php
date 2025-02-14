@@ -58,6 +58,7 @@
                                         <div class="col-md-10">
                                             <select name="role" class="form-select" required>
                                                 <option value="">-- Select Role --</option>
+                                                <option value="admin"> Admin </option>
                                                 @foreach ($roles as $role)
                                                     <option value="{{ $role->name }}"
                                                         {{ old('role', isset($user) ? $user->role : '') == $role->name ? 'selected' : '' }}>
