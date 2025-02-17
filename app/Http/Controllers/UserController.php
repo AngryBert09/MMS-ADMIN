@@ -252,7 +252,7 @@ class UserController extends Controller
                     ]);
                     Log::info('Role status updated:', ['role' => $request->role, 'new_status' => $request->status]);
 
-                    return redirect()->route('create-roles')->with('success', 'Role status updated successfully.');
+                    return redirect()->route('create.roles')->with('success', 'Role status updated successfully.');
                 }
 
                 Log::info('Role already exists with the same status:', ['role' => $existingRole->name, 'status' => $existingRole->status]);
@@ -274,7 +274,7 @@ class UserController extends Controller
                 DB::table('roles')->insert($newRoleData);
                 Log::debug('New role successfully inserted:', ['role' => $newRoleData]);
 
-                return redirect()->route('create-roles')->with('success', 'New role added successfully.');
+                return redirect()->route('create.roles')->with('success', 'New role added successfully.');
             }
 
             Log::warning('Invalid role selection:', ['role' => $request->role]);
@@ -282,7 +282,7 @@ class UserController extends Controller
         } catch (\Exception $e) {
             // Log the error
             Log::error('Error adding/updating role:', ['error' => $e->getMessage()]);
-            return redirect()->route('create-roles')->with('error', 'An error occurred while processing the role.');
+            return redirect()->route('create.roles')->with('error', 'An error occurred while processing the role.');
         }
     }
 
