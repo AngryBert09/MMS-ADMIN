@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Mail\VendorInvitationMail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
+
+use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Log;
 
 class VendorController extends Controller
@@ -20,11 +22,12 @@ class VendorController extends Controller
             'name' => 'required|string|max:255',
         ]);
 
-        // Log validated data
-        Log::info('Vendor invitation validation passed:', $validated);
+        $combinedData = $validated['email'] . '|' . $validated['name'];
+        // Encrypt the combined data
+        $encryptedData = Crypt::encryptString($combinedData);
+        // URL encode the encrypted data
+        $inviteLink = 'https://logistic2.gwamerchandise.com/register?data=' . urlencode($encryptedData);
 
-        // Generate invite link for external domain
-        $inviteLink = 'https://logistic2.gwamerchandise.com/register?vendor=' . base64_encode($validated['email']);
         Log::debug('Generated invite link:', ['link' => $inviteLink]);
 
         // Send the invitation email
