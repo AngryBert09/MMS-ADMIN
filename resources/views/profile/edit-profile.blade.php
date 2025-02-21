@@ -19,38 +19,14 @@
                         <div class="widget settings-menu">
                             <ul>
                                 <li class="nav-item">
-                                    <a href="settings.html" class="nav-link active">
+                                    <a href="{{ route('profile.edit') }}" class="nav-link active">
                                         <i class="far fa-user"></i> <span>Profile Settings</span>
                                     </a>
                                 </li>
+
                                 <li class="nav-item">
-                                    <a href="preferences.html" class="nav-link">
-                                        <i class="fas fa-cog"></i> <span>Preferences</span>
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a href="tax-types.html" class="nav-link">
-                                        <i class="far fa-check-square"></i> <span>Tax Types</span>
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a href="expense-category.html" class="nav-link">
-                                        <i class="far fa-list-alt"></i> <span>Expense Category</span>
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a href="notifications.html" class="nav-link">
-                                        <i class="far fa-bell"></i> <span>Notifications</span>
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a href="change-password.html" class="nav-link">
+                                    <a href="{{ route('profile.change-pass') }}" class="nav-link">
                                         <i class="fas fa-unlock-alt"></i> <span>Change Password</span>
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a href="delete-account.html" class="nav-link">
-                                        <i class="fas fa-ban"></i> <span>Delete Account</span>
                                     </a>
                                 </li>
                             </ul>
@@ -63,17 +39,22 @@
                                 <h5 class="card-title">Basic information</h5>
                             </div>
                             <div class="card-body">
-
-                                <form>
+                                @include('profile.message')
+                                <form action="{{ route('profile.update', $user->id) }} " method="POST"
+                                    enctype="multipart/form-data">
+                                    @csrf
+                                    @method('PUT')
                                     <div class="row form-group">
-                                        <label for="name" class="col-sm-3 col-form-label input-label">Name</label>
+                                        <label for="name" class="col-sm-3 col-form-label input-label">Profile
+                                            Image</label>
                                         <div class="col-sm-9">
                                             <div class="d-flex align-items-center">
                                                 <label class="avatar avatar-xxl profile-cover-avatar m-0"
                                                     for="edit_img">
                                                     <img id="avatarImg" class="avatar-img"
-                                                        src="assets/img/profiles/avatar-02.jpg" alt="Profile Image">
-                                                    <input type="file" id="edit_img">
+                                                        src="{{ $user->profile_pic ? asset('storage/' . $user->profile_pic) : asset('img/profiles/default.jpg') }}"
+                                                        alt="Profile Image">
+                                                    <input type="file" id="edit_img" name="profile_pic">
                                                     <span class="avatar-edit">
                                                         <i data-feather="edit-2"
                                                             class="avatar-uploader-icon shadow-soft"></i>
@@ -81,73 +62,57 @@
                                                 </label>
                                             </div>
                                         </div>
+
+                                        <script>
+                                            document.getElementById('edit_img').addEventListener('change', function(event) {
+                                                var input = event.target;
+                                                if (input.files && input.files[0]) {
+                                                    var reader = new FileReader();
+                                                    reader.onload = function(e) {
+                                                        document.getElementById('avatarImg').src = e.target.result;
+                                                    }
+                                                    reader.readAsDataURL(input.files[0]);
+                                                }
+                                            });
+                                        </script>
+
                                     </div>
                                     <div class="row form-group">
                                         <label for="name" class="col-sm-3 col-form-label input-label">Name</label>
                                         <div class="col-sm-9">
-                                            <input type="text" class="form-control" id="name"
-                                                placeholder="Your Name" value="Charles Hafner">
+                                            <input type="text" class="form-control" id="name" name="name"
+                                                placeholder="Your Name" value="{{ $user->name }}">
                                         </div>
                                     </div>
                                     <div class="row form-group">
                                         <label for="email" class="col-sm-3 col-form-label input-label">Email</label>
                                         <div class="col-sm-9">
-                                            <input type="email" class="form-control" id="email"
-                                                placeholder="Email" value="charleshafner@example.com">
+                                            <input type="email" class="form-control" id="email" name="email"
+                                                placeholder="Email" value="{{ $user->email }}" readonly>
                                         </div>
                                     </div>
                                     <div class="row form-group">
                                         <label for="phone" class="col-sm-3 col-form-label input-label">Phone <span
-                                                class="text-muted">(Optional)</span></label>
+                                                class="text-muted"></span></label>
                                         <div class="col-sm-9">
                                             <input type="text" class="form-control" id="phone"
-                                                placeholder="+x(xxx)xxx-xx-xx" value="+1 (304) 499-13-66">
+                                                name="phone_number" placeholder="+x(xxx)xxx-xx-xx"
+                                                value="{{ $user->phone_number }}" required>
                                         </div>
                                     </div>
                                     <div class="row form-group">
-                                        <label for="location"
-                                            class="col-sm-3 col-form-label input-label">Location</label>
+                                        <label for="addressline1"
+                                            class="col-sm-3 col-form-label input-label">Address</label>
                                         <div class="col-sm-9">
-                                            <div class="mb-3">
-                                                <input type="text" class="form-control" id="location"
-                                                    placeholder="Country" value="United States">
-                                            </div>
-                                            <div class="mb-3">
-                                                <input type="text" class="form-control" placeholder="City"
-                                                    value="Charleston">
-                                            </div>
-                                            <input type="text" class="form-control" placeholder="State"
-                                                value="West Virginia">
-                                        </div>
-                                    </div>
-                                    <div class="row form-group">
-                                        <label for="addressline1" class="col-sm-3 col-form-label input-label">Address
-                                            line 1</label>
-                                        <div class="col-sm-9">
-                                            <input type="text" class="form-control" id="addressline1"
-                                                placeholder="Your address" value="2681  Columbia Mine Road">
-                                        </div>
-                                    </div>
-                                    <div class="row form-group">
-                                        <label for="addressline2" class="col-sm-3 col-form-label input-label">Address
-                                            line 2 <span class="text-muted">(Optional)</span></label>
-                                        <div class="col-sm-9">
-                                            <input type="text" class="form-control" id="addressline2"
-                                                placeholder="Your address">
-                                        </div>
-                                    </div>
-                                    <div class="row form-group">
-                                        <label for="zipcode" class="col-sm-3 col-form-label input-label">Zip
-                                            code</label>
-                                        <div class="col-sm-9">
-                                            <input type="text" class="form-control" id="zipcode"
-                                                placeholder="Your zip code" value="25301">
+                                            <input type="text" class="form-control" id="addressline1" name="address"
+                                                placeholder="Your address" value="{{ $user->address }}">
                                         </div>
                                     </div>
                                     <div class="text-end">
-                                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                                        <button type="submit" class="btn btn-warning">Save Changes</button>
                                     </div>
                                 </form>
+
 
                             </div>
                         </div>

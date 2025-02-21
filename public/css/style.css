@@ -601,14 +601,14 @@ table .badge {
 
 .bg-primary,
 .badge-primary {
-    background-color: #7638ff !important
+    background-color: #ffbc34 !important
 }
 
 a.bg-primary:focus,
 a.bg-primary:hover,
 button.bg-primary:focus,
 button.bg-primary:hover {
-    background-color: #621aff !important
+    background-color: #f8c55f !important
 }
 
 .bg-success,
@@ -673,7 +673,7 @@ button.bg-danger:hover {
     color: #7638ff !important
 }
 
-.text-success,
+s .text-success,
 .dropdown-menu>li>a.text-success {
     color: #22cc62 !important
 }
@@ -712,8 +712,8 @@ button.bg-danger:hover {
 .btn-primary.active,
 .btn-primary:active,
 .open>.dropdown-toggle.btn-primary {
-    background-color: #621aff;
-    border          : 1px solid #621aff
+    background-color: #ffbc34;
+    border          : 1px solid #ffbc34
 }
 
 .btn-primary.active.focus,
@@ -1173,8 +1173,8 @@ button.bg-danger:hover {
 }
 
 .page-item.active .page-link {
-    background-color: #7638ff;
-    border-color    : #7638ff
+    background-color: #ffbc34;
+    border-color    : #ffbc34
 }
 
 .dropdown-menu {
@@ -3327,12 +3327,12 @@ html.menu-opened body {
 
 .sidebar-menu>ul>li>a:hover {
     background-color: rgba(118, 56, 255, .05);
-    color           : #7638ff
+    color           : #ffbc34
 }
 
 .sidebar-menu li.active>a {
     background-color: rgba(118, 56, 255, .05);
-    color           : #7638ff;
+    color           : #ffbc34;
     position        : relative
 }
 
@@ -3343,7 +3343,7 @@ html.menu-opened body {
     position          : absolute;
     left              : 0;
     top               : 0;
-    background        : #7638ff;
+    background        : #ffbc34;
     -webkit-transition: all .5s;
     -ms-transition    : all .5s;
     transition        : all .5s
@@ -3536,7 +3536,7 @@ html.menu-opened body {
 
 .sidebar-menu-two>ul>li>a:hover {
     background-color: rgb(247 248 249);
-    color           : #7638ff
+    color           : #ffbc34
 }
 
 .sidebar-three {
@@ -3576,13 +3576,13 @@ html.menu-opened body {
 
 .sidebar-menu-three>ul>li>a:hover {
     background: rgba(118, 56, 255, .12);
-    color     : #7638ff
+    color     : #ffbc34
 }
 
 .sidebar-menu-three li.active>a::before {
     right     : 0;
     left      : auto;
-    background: #7638ff
+    background: #ffbc34
 }
 
 .sidebar-menu-three ul ul {
@@ -3659,7 +3659,7 @@ html.menu-opened body {
     position          : absolute;
     left              : 0;
     top               : 0;
-    background        : #7638ff;
+    background        : #ffbc34;
     -webkit-transition: all .5s;
     -ms-transition    : all .5s;
     transition        : all .5s
@@ -4751,7 +4751,7 @@ table.table-inbox tbody tr.checked {
     width           : 12px;
     height          : 12px;
     border-radius   : 50%;
-    background-color: #7638ff
+    background-color: #ffbc34
 }
 
 .activity-feed .feed-item .feed-date {
@@ -4933,7 +4933,7 @@ table.table-inbox tbody tr.checked {
 }
 
 .settings-menu ul li a.active {
-    color : #7638ff !important;
+    color : #ffbc34 !important;
     border: 0
 }
 

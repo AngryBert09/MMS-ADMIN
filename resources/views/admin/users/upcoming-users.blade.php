@@ -56,9 +56,41 @@
                                             </tr>
                                         </thead>
                                         <tbody>
-
+                                            @if (isset($employees) && count($employees) > 0)
+                                                @foreach ($employees as $employee)
+                                                    <tr>
+                                                        <td>
+                                                            {{ trim(
+                                                                ($employee['first_name'] ?? '') . ' ' . ($employee['middle_name'] ?? '') . ' ' . ($employee['last_name'] ?? ''),
+                                                            ) ?:
+                                                                'N/A' }}
+                                                        </td>
+                                                        <td>{{ $employee['contact'] ?? 'N/A' }}</td>
+                                                        <td>{{ $employee['email'] ?? 'N/A' }}</td>
+                                                        <td>{{ $employee['department'] ?? 'N/A' }}</td>
+                                                        <td>{{ $employee['status'] ?? 'N/A' }}</td>
+                                                        <td class="text-end">
+                                                            <!-- CREATE ACCOUNT button -->
+                                                            <form
+                                                                action="{{ route('hr.employee.create_account', $employee['id']) }}"
+                                                                method="POST" style="display:inline;">
+                                                                @csrf
+                                                                <button type="submit"
+                                                                    class="btn btn-sm btn-success">CREATE
+                                                                    ACCOUNT</button>
+                                                            </form>
+                                                        </td>
+                                                    </tr>
+                                                @endforeach
+                                            @else
+                                                <tr>
+                                                    <td colspan="6" class="text-center">No employee applications
+                                                        found.</td>
+                                                </tr>
+                                            @endif
                                         </tbody>
                                     </table>
+
                                 </div>
                             </div>
                         </div>

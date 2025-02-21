@@ -16,7 +16,7 @@
                         @include('layout.breadcrumb')
                         <div class="profile-cover">
                             <div class="profile-cover-wrap">
-                                <img class="profile-cover-img" src="assets/img/profiles/avatar-02.jpg"
+                                <img class="profile-cover-img" src="{{ asset('img/greatwall-cover.jpg') }}"
                                     alt="Profile Cover">
 
                                 <div class="cover-content">
@@ -33,24 +33,24 @@
                         </div>
                         <div class="text-center mb-5">
                             <label class="avatar avatar-xxl profile-cover-avatar" for="avatar_upload">
-                                <img class="avatar-img" src="assets/img/profiles/avatar-02.jpg" alt="Profile Image">
-                                <input type="file" id="avatar_upload">
-                                <span class="avatar-edit">
-                                    <i data-feather="edit-2" class="avatar-uploader-icon shadow-soft"></i>
+                                <img class="avatar-img" src="{{ asset('storage/' . $user->profile_pic) }}"
+                                    alt="Profile Image">
+                                <a href="{{ route('profile.edit') }}">
+                                    <span class="avatar-edit">
+                                        <i data-feather="edit-2" class="avatar-uploader-icon shadow-soft"></a></i>
                                 </span>
                             </label>
-                            <h2>{{ $user->name }} <i class="fas fa-certificate text-primary small"
+                            <h2>{{ $user->name }} <i class="fas fa-certificate text-warning small"
                                     data-toggle="tooltip" data-placement="top" title=""
                                     data-original-title="Verified"></i></h2>
                             <ul class="list-inline">
                                 <li class="list-inline-item">
-                                    <i class="far fa-building"></i> <span>Hafner Pvt Ltd.</span>
+                                    <i class="far fa-building"></i> <span>{{ $user->address }}</span>
                                 </li>
+
                                 <li class="list-inline-item">
-                                    <i class="fas fa-map-marker-alt"></i> West Virginia, US
-                                </li>
-                                <li class="list-inline-item">
-                                    <i class="far fa-calendar-alt"></i> <span>Joined November 2017</span>
+                                    <i class="far fa-calendar-alt"></i>
+                                    <span>{{ $user->created_at->diffForHumans() }}</span>
                                 </li>
                             </ul>
                         </div>
@@ -61,10 +61,11 @@
 
                                     <div class="d-flex justify-content-between align-items-center">
                                         <div class="progress progress-md flex-grow-1">
-                                            <div class="progress-bar bg-primary" role="progressbar" style="width: 30%"
+                                            <div class="progress-bar bg-primary" role="progressbar"
+                                                style="width: {{ $user->getProfileCompletionPercentage() }}%"
                                                 aria-valuenow="30" aria-valuemin="0" aria-valuemax="100"></div>
                                         </div>
-                                        <span class="ms-4">30%</span>
+                                        <span class="ms-4">{{ $user->getProfileCompletionPercentage() }}%</span>
                                     </div>
 
                                 </div>
@@ -75,6 +76,7 @@
                                             <a class="btn btn-sm btn-white" href="{{ route('profile.edit') }}">Edit</a>
                                         </h5>
                                     </div>
+
                                     <div class="card-body">
                                         <ul class="list-unstyled mb-0">
                                             <li class="py-0">
@@ -83,27 +85,21 @@
                                             <li>
                                                 {{ $user->name }}
                                             </li>
-                                            <li>
-                                                Hafner Pvt Ltd.
-                                            </li>
                                             <li class="pt-2 pb-0">
                                                 <h6>Contacts</h6>
                                             </li>
                                             <li>
-                                                <a href="/cdn-cgi/l/email-protection" class="__cf_email__"
+                                                <a href="{{ route('profile.edit') }}" class="__cf_email__"
                                                     data-cfemail="72111a13001e17011a13141c170032170a131f021e175c111d1f">[email&#160;protected]</a>
                                             </li>
                                             <li>
-                                                +1 (304) 499-13-66
+                                                {{ $user->phone_number }}
                                             </li>
                                             <li class="pt-2 pb-0">
                                                 <h6>Address</h6>
                                             </li>
                                             <li>
-                                                4663 Agriculture Lane,<br>
-                                                Miami,<br>
-                                                Florida - 33165,<br>
-                                                United States.
+                                                {{ $user->address }}
                                             </li>
                                         </ul>
                                     </div>
@@ -116,55 +112,25 @@
                                     </div>
                                     <div class="card-body card-body-height">
                                         <ul class="activity-feed">
-                                            <li class="feed-item">
-                                                <div class="feed-date">Nov 16</div>
-                                                <span class="feed-text"><a href="profile.html">Brian Johnson</a> has
-                                                    paid the invoice <a href="view-invoice.html">"#DF65485"</a></span>
-                                            </li>
-                                            <li class="feed-item">
-                                                <div class="feed-date">Nov 7</div>
-                                                <span class="feed-text"><a href="profile.html">Marie Canales</a> has
-                                                    accepted your estimate <a
-                                                        href="view-estimate.html">#GTR458789</a></span>
-                                            </li>
-                                            <li class="feed-item">
-                                                <div class="feed-date">Oct 24</div>
-                                                <span class="feed-text">New expenses added <a
-                                                        href="expenses.html">"#TR018756</a></span>
-                                            </li>
-                                            <li class="feed-item">
-                                                <div class="feed-date">Oct 24</div>
-                                                <span class="feed-text">New expenses added <a
-                                                        href="expenses.html">"#TR018756</a></span>
-                                            </li>
-                                            <li class="feed-item">
-                                                <div class="feed-date">Oct 24</div>
-                                                <span class="feed-text">New expenses added <a
-                                                        href="expenses.html">"#TR018756</a></span>
-                                            </li>
-                                            <li class="feed-item">
-                                                <div class="feed-date">Oct 24</div>
-                                                <span class="feed-text">New expenses added <a
-                                                        href="expenses.html">"#TR018756</a></span>
-                                            </li>
-                                            <li class="feed-item">
-                                                <div class="feed-date">Oct 24</div>
-                                                <span class="feed-text">New expenses added <a
-                                                        href="expenses.html">"#TR018756</a></span>
-                                            </li>
-                                            <li class="feed-item">
-                                                <div class="feed-date">Jan 27</div>
-                                                <span class="feed-text"><a href="profile.html">Robert Martin</a> gave
-                                                    a review for <a href="product-details.html">"Dell
-                                                        Laptop"</a></span>
-                                            </li>
-                                            <li class="feed-item">
-                                                <div class="feed-date">Jan 14</div>
-                                                <span class="feed-text">New customer registered <a
-                                                        href="profile.html">"Tori Carter"</a></span>
-                                            </li>
+                                            @if ($activities->count())
+                                                @foreach ($activities as $activity)
+                                                    <li class="feed-item">
+                                                        <div class="feed-date">
+                                                            {{ \Carbon\Carbon::parse($activity->created_at)->format('M d') }}
+                                                        </div>
+                                                        <span class="feed-text">
+                                                            {!! $activity->description !!}
+                                                        </span>
+                                                    </li>
+                                                @endforeach
+                                            @else
+                                                <li class="feed-item">
+                                                    <span class="feed-text">No recent activities found.</span>
+                                                </li>
+                                            @endif
                                         </ul>
                                     </div>
+
                                 </div>
                             </div>
                         </div>

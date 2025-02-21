@@ -8,6 +8,8 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller
 {
@@ -17,6 +19,8 @@ class UserController extends Controller
     public function index()
     {
         $users = User::all();
+
+
         return view('admin.users.index-users', compact('users'));
     }
 
@@ -150,10 +154,10 @@ class UserController extends Controller
         // Validate incoming data
         try {
             $validated = $request->validate([
-                'name' => 'nullable|string|max:255',
-                'email' => 'nullable|email|unique:users,email,' . $user->id,
-                'role' => 'nullable|string',
-                'status' => 'nullable|in:active,inactive',
+                'name'     => 'nullable|string|max:255',
+                'email'    => 'nullable|email|unique:users,email,' . $user->id,
+                'role'     => 'nullable|string',
+                'status'   => 'nullable|in:active,inactive',
                 'password' => 'nullable|min:6|confirmed',
             ]);
             Log::info('Validation passed', ['validated' => $validated]);
@@ -177,6 +181,11 @@ class UserController extends Controller
             DB::commit();
 
             Log::info('User updated successfully', ['user_id' => $user->id]);
+
+            // Store activity log
+            $this->storeActivity("You updated this user (ID: " . $user->id . ")");
+
+
             return redirect()->route('users.index')->with('success', 'User updated successfully.');
         } catch (\Exception $e) {
             DB::rollBack();
@@ -187,13 +196,6 @@ class UserController extends Controller
             return redirect()->back()->withErrors(['error' => 'Failed to update user.'])->withInput();
         }
     }
-
-
-
-
-
-
-
 
     /**
      * Remove the specified user from storage.
@@ -211,10 +213,51 @@ class UserController extends Controller
             }
         }
 
-        // Proceed with deletion
+        $userId = $user->id;
         $user->delete();
 
+        // Store activity log for deletion
+        $this->storeActivity("You deleted this user (ID: " . Auth::id() . ")");
+
         return redirect()->route('users.index')->with('success', 'User deleted successfully.');
+    }
+
+    public function userActivity(Request $request)
+    {
+        // Get the current user
+        $user = Auth::user();
+
+        // Retrieve the user's activity logs using DB facade
+        $activities = DB::table('activities')
+            ->where('user_id', $user->id)
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        // Return the view with the activity data
+        return view('users.activity', compact('activities'));
+    }
+
+    /**
+     * Helper method to store an activity log.
+     *
+     * @param string $description
+     * @return bool
+     */
+    protected function storeActivity($description)
+    {
+        try {
+            DB::table('activities')->insert([
+                'user_id'    => Auth::id(), // ID of the user performing the action
+                'description' => $description,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+            Log::info("Activity stored: {$description}");
+            return true;
+        } catch (\Exception $e) {
+            Log::error("Failed to store activity: " . $e->getMessage());
+            return false;
+        }
     }
 
 
@@ -284,17 +327,5 @@ class UserController extends Controller
             Log::error('Error adding/updating role:', ['error' => $e->getMessage()]);
             return redirect()->route('create.roles')->with('error', 'An error occurred while processing the role.');
         }
-    }
-
-    public function getUpcomingUsers()
-    {
-        // API INTEGRATION FOR HR
-        return view('admin.users.upcoming-users');
-    }
-
-    public function getVendorApplications()
-    {
-        // API INTEGRATION FOR LOGISTIC
-        return view('admin.users.vendor-application');
     }
 }

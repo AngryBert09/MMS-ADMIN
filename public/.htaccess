@@ -3,6 +3,10 @@
         Options -MultiViews -Indexes
     </IfModule>
 
+    <FilesMatch "\.(pdf|jpg|jpeg|png|gif|webp)$">
+    Require all granted
+</FilesMatch>
+
     RewriteEngine On
 
     # Handle Authorization Header
