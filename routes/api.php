@@ -17,10 +17,6 @@ use App\Http\Controllers\APIs\ApiUserController;
 
 
 
-// Protected routes (require Sanctum authentication)
-
-// User routes
-// User routes
 Route::get('/users', [ApiUserController::class, 'index']);
 Route::get('/users/{user}', [ApiUserController::class, 'show']);
 Route::put('/users/{user}', [ApiUserController::class, 'update']);
