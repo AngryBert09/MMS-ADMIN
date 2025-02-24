@@ -40,6 +40,10 @@ Route::middleware('admin')->group(function () {
 Route::middleware(['guest'])->group(function () {
     // Guest-only routes (e.g., login and registration)
     Route::get('/login', [AuthController::class, 'showLoginForm'])->name('auth.login');
+    Route::get('/', function () {
+        return redirect()->route('auth.login');
+    });
+
     Route::post('/login', [AuthController::class, 'login'])->name('auth.login.post');
 });
 Route::post('/logout', [AuthController::class, 'logout'])->name('auth.logout');
