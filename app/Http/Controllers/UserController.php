@@ -63,7 +63,7 @@ class UserController extends Controller
             $request->validate([
                 'name' => 'required|string|max:255',
                 'email' => 'required|email|unique:users,email',
-                'role' => 'required|in:admin,vendor,user,hr',
+                'role' => 'required|string',
                 'status' => 'required|in:active,inactive',
             ], $messages);
         } catch (\Illuminate\Validation\ValidationException $e) {
