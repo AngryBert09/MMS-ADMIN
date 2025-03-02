@@ -33,8 +33,10 @@
                         </div>
                         <div class="text-center mb-5">
                             <label class="avatar avatar-xxl profile-cover-avatar" for="avatar_upload">
-                                <img class="avatar-img" src="{{ asset('storage/' . $user->profile_pic) }}"
+                                <img class="avatar-img"
+                                    src="{{ $user->profile_pic ? asset('storage/' . $user->profile_pic) : asset('img/profiles/default.jpg') }}"
                                     alt="Profile Image">
+
                                 <a href="{{ route('profile.edit') }}">
                                     <span class="avatar-edit">
                                         <i data-feather="edit-2" class="avatar-uploader-icon shadow-soft"></a></i>
