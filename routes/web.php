@@ -7,6 +7,7 @@ use App\Http\Controllers\VendorController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\EmailController;
 use App\Http\Controllers\HRController;
+use App\Http\Controllers\SalesReportController;
 
 
 Route::get('/dashboard', function () {
@@ -54,9 +55,7 @@ Route::get('/forgot-password', function () {
 })->name('password.request');
 
 
-Route::get('/sales-report', function () {
-    return view('admin.reports.sales-report');
-})->middleware('admin')->name('reports.sales');
+
 
 Route::get('/invoices', function () {
     return view('admin.reports.invoices');
@@ -66,12 +65,17 @@ Route::get('/chats', function () {
     return view('admin.applications.chat');
 })->middleware('admin')->name('applications.chat');
 
+Route::get('/two-factor', function () {
+    return view('auth.two-factor');
+})->middleware('admin')->name('auth.two-factor');
+
 
 Route::get('/inbox', [EmailController::class, 'fetchEmails'])->name('applications.inbox');
 Route::get('/emails/{id}', [EmailController::class, 'show'])->name('emails.show');
 Route::post('/emails/send', [EmailController::class, 'sendEmail'])->name('emails.send');
 Route::get('/email/{uid}', [EmailController::class, 'show']);
 
+Route::get('/sales-report', [SalesReportController::class, 'index'])->name('reports.sales'); // Fetch all sales
 
 
 Route::put('/vendor/{id}/update-status/{status}', [VendorController::class, 'updateVendorStatus']);

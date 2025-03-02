@@ -63,9 +63,15 @@ class HRController extends Controller
 
         $uniqueNumber = mt_rand(1000, 9999);
         $lastName = strtolower($employee['last_name'] ?? 'user');
+        $cleanLastName = strtolower(str_replace(' ', '', $lastName));
 
-        $email = $lastName . $uniqueNumber . '@gwamerch.com';
-        $password = '#' . ucfirst($lastName) . 'GWA';
+        $email = $cleanLastName . $uniqueNumber . '@gwamerch.com';
+        $password = '#' . $cleanLastName . 'GWA';
+
+
+
+
+        Log::debug("Concatenated password: {$password}");
 
         try {
             $user = new User();

@@ -3,9 +3,18 @@
         Options -MultiViews -Indexes
     </IfModule>
 
-    <FilesMatch "\.(pdf|jpg|jpeg|png|gif|webp)$">
-    Require all granted
+    <FilesMatch "\.(pdf|jpg|jpeg|png)$">
+    Header set Access-Control-Allow-Origin "*"
 </FilesMatch>
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteRule ^storage/(.*)$ storage/$1 [L]
+</IfModule>
+
+
 
     RewriteEngine On
 

@@ -4,6 +4,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\APIs\ApiUserController;
+use App\Http\Controllers\SalesReportController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -21,6 +22,7 @@ Route::get('/users', [ApiUserController::class, 'index']);
 Route::get('/users/{user}', [ApiUserController::class, 'show']);
 Route::put('/users/{user}', [ApiUserController::class, 'update']);
 
+Route::get('/generate-sales-report', [SalesReportController::class, 'generateReport']);
 
 // Authentication route
 Route::post('/auth', [ApiUserController::class, 'authenticate']);

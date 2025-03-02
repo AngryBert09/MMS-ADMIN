@@ -31,7 +31,11 @@
                             <a class="btn btn-primary filter-btn" href="javascript:void(0);" id="filter_search">
                                 <i class="fas fa-filter"></i>
                             </a>
+                            <a class="btn btn-success generate-report" href="javascript:void(0);" id="generate_report">
+                                <i class="fas fa-file-alt"></i> Generate Report
+                            </a>
                         </div>
+
                     </div>
                 </div>
 
@@ -134,6 +138,96 @@
                 </div>
             </div>
         </div>
+
+        <!-- Sales Report Modal -->
+        <div class="modal fade" id="salesReportModal" tabindex="-1" aria-labelledby="salesReportModalLabel"
+            aria-hidden="true">
+            <div class="modal-dialog modal-xl"> <!-- Changed to extra-large modal -->
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="salesReportModalLabel">Sales Report</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body" style="max-height: 70vh; overflow-y: auto;"> <!-- Scrollable content -->
+                        <div id="salesReportContent">
+                            <p>Generating sales report...</p>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-primary" id="copyReport">Copy to Clipboard</button>
+                        <button class="btn btn-success" id="downloadReport">Download Report</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+        <script>
+            document.addEventListener("DOMContentLoaded", function() {
+                document.getElementById("generate_report").addEventListener("click", function() {
+                    let reportContent = document.getElementById("salesReportContent");
+                    reportContent.innerHTML = "<p>Generating sales report...</p>";
+
+                    let salesModal = new bootstrap.Modal(document.getElementById("salesReportModal"));
+                    salesModal.show();
+
+                    fetch(`/api/generate-sales-report`)
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.report) {
+                                reportContent.innerHTML =
+                                    `<pre style="white-space: pre-wrap;">${data.report}</pre>`;
+                            } else {
+                                reportContent.innerHTML =
+                                    `<p class="text-danger">Failed to generate report.</p>`;
+                            }
+                        })
+                        .catch(error => {
+                            reportContent.innerHTML =
+                                `<p class="text-danger">Error fetching report: ${error.message}</p>`;
+                        });
+                });
+
+                // Copy to clipboard
+                document.getElementById("copyReport").addEventListener("click", function() {
+                    let text = document.getElementById("salesReportContent").innerText;
+                    navigator.clipboard.writeText(text).then(() => {
+                        alert("Report copied to clipboard!");
+                    }).catch(err => {
+                        alert("Failed to copy report: " + err);
+                    });
+                });
+
+                // Download report as PDF
+                document.getElementById("downloadReport").addEventListener("click", function() {
+                    let {
+                        jsPDF
+                    } = window.jspdf;
+                    let doc = new jsPDF();
+
+                    let text = document.getElementById("salesReportContent").innerText;
+                    let pageWidth = doc.internal.pageSize.getWidth();
+
+                    doc.setFont("helvetica", "normal");
+                    doc.setFontSize(12);
+                    doc.text("Sales Performance Report", pageWidth / 2, 20, {
+                        align: "center"
+                    });
+                    doc.setFontSize(10);
+                    doc.text(text, 15, 30, {
+                        maxWidth: 180,
+                        align: "left"
+                    });
+
+                    doc.save("sales-report.pdf");
+                });
+            });
+        </script>
+
+
+
 
     </div>
 

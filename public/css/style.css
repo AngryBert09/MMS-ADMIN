@@ -1155,17 +1155,17 @@ s .text-success,
 .pagination>.active>span,
 .pagination>.active>span:focus,
 .pagination>.active>span:hover {
-    background-color: #7638ff;
-    border-color    : #7638ff
+    background-color: #ffbc34;
+    border-color    : #ffbc34
 }
 
 .pagination>li>a,
 .pagination>li>span {
-    color: #7638ff
+    color: #ffbc34
 }
 
 .page-link:hover {
-    color: #7638ff
+    color: #ffbc34
 }
 
 .page-link:focus {
@@ -2293,13 +2293,13 @@ s .text-success,
 }
 
 .user-menu .dropdown-menu .dropdown-item:hover {
-    color           : #7638ff;
+    color           : #ffbc34;
     background-color: transparent
 }
 
 .header .dropdown-menu>li>a:focus,
 .header .dropdown-menu>li>a:hover {
-    background-color: #7638ff;
+    background-color: #ffbc34;
     color           : #fff
 }
 
@@ -2313,14 +2313,14 @@ s .text-success,
 }
 
 .header .dropdown-menu>li>a i {
-    color       : #7638ff;
+    color       : #ffbc34;
     margin-right: 10px;
     text-align  : center;
     width       : 18px
 }
 
 .header .user-menu .dropdown-menu>li>a i {
-    color       : #7638ff;
+    color       : #ffbc34;
     font-size   : 16px;
     margin-right: 10px;
     min-width   : 18px;
