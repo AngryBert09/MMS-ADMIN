@@ -490,7 +490,7 @@
 
     </div>
 
-    @include('layout.footerJs')
+    @include('layout.footerjs')
 </body>
 
 </html>
