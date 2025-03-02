@@ -53,7 +53,7 @@ class UserController extends Controller
             'email.email' => 'Please enter a valid email address.',
             'email.unique' => 'The email is already taken. Try a different one.',
             'role.required' => 'Role is required.',
-            'role.in' => 'Invalid role selected.',
+            'role.string' => 'Invalid role format.',
             'status.required' => 'Status is required.',
             'status.in' => 'Invalid status selected.',
         ];
@@ -74,8 +74,9 @@ class UserController extends Controller
         DB::beginTransaction(); // Start database transaction
 
         try {
-            // Automatically generate a password using the role
-            $password = '#' . strtolower($request->role) . 'GWA';
+            // Convert role to lowercase for password generation
+            $roleLower = strtolower($request->role);
+            $password = "#{$roleLower}GWA";
             Log::info('Generated role-based password:', ['password' => $password]);
 
             // Hash the password

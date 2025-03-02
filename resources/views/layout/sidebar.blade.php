@@ -21,15 +21,33 @@
                     <a href="#"><i data-feather="pie-chart"></i> <span> Reports</span> <span
                             class="menu-arrow"></span></a>
                     <ul>
-                        <li><a href="sales-report.html">Sales Report</a></li>
-                        <li><a href="expenses-report.html">Expenses Report</a></li>
-                        <li><a href="profit-loss-report.html">Profit & Loss Report</a></li>
-                        <li><a href="taxs-report.html">Taxs Report</a></li>
+                        <li><a href="{{ route('reports.sales') }}">Sales Report</a></li>
+                        <li><a href="{{ route('reports.invoices') }}">Invoices</a></li>
                     </ul>
+                </li>
+                <li>
+                    <a href="estimates.html"><i data-feather="file-text"></i> <span>Documents</span></a>
+                </li>
+                <li class="submenu">
+                    <a href="#"><i data-feather="grid"></i> <span> Application</span> <span
+                            class="menu-arrow"></span></a>
+                    <ul>
+                        <li>
+                            <a href="{{ route('applications.chat') }}">
+                                Chat <span style="color: black; font-size: 0.8em; margin-left: 5px;">[BETA]</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ route('applications.inbox') }}">
+                                Email <span style="color: black; font-size: 0.8em; margin-left: 5px;">[BETA]</span>
+                            </a>
+                        </li>
+                    </ul>
+
                 </li>
 
                 <li>
-                    <a href="settings.html"><i data-feather="settings"></i> <span>Settings</span></a>
+                    <a href="{{ route('profile.edit') }}"><i data-feather="settings"></i> <span>Settings</span></a>
                 </li>
 
 

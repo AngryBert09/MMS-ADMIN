@@ -42,6 +42,18 @@ class AuthController extends Controller
             return redirect()->route('auth.login')->withErrors(['email' => 'Email not found'])->withInput();
         }
 
+        // Check if the account is active
+        if ($user->status !== 'Active') {
+            Log::warning('Login attempt for inactive account', [
+                'email' => $request->email,
+                'user_id' => $user->id,
+                'status' => $user->status,
+                'ip' => $request->ip(),
+            ]);
+
+            return redirect()->route('auth.login')->withErrors(['email' => 'Account is inactive. Please contact support.'])->withInput();
+        }
+
         // Log stored password hash
         Log::info('Stored Password Hash:', ['hashed_password' => $user->password]);
 
@@ -81,6 +93,7 @@ class AuthController extends Controller
 
         return redirect()->route('dashboard')->with('success', 'Login successful');
     }
+
 
     /**
      * Handle logout.

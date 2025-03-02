@@ -19,18 +19,18 @@ class ApiUserController extends Controller
     {
         $users = User::all()->map(function ($user) {
             return [
-                'id'               => $user->id,
-                'name'             => $user->name,
-                'email'            => $user->email,
-                'emailVerifiedAt'  => $user->email_verified_at,
-                'role'             => $user->role,
-                'status'           => $user->status,
-                'phoneNumber'      => $user->phone_number,
-                'address'          => $user->address,
-                'profilePic'       => $user->profile_pic,
-                'coverPic'         => $user->cover_pic,
-                'createdAt'        => $user->created_at,
-                'updatedAt'        => $user->updated_at,
+                'id'              => $user->id,
+                'name'           => $user->name,
+                'email'          => $user->email,
+                'emailVerifiedAt' => $user->email_verified_at,
+                'role'           => $user->role,
+                'status'        => $user->status,
+                'phoneNumber'    => $user->phone_number,
+                'address'       => $user->address,
+                'profilePic'     => $user->profile_pic,
+                'coverPic'       => $user->cover_pic,
+                'createdAt'      => $user->created_at,
+                'updatedAt'      => $user->updated_at,
             ];
         });
 
@@ -98,11 +98,11 @@ class ApiUserController extends Controller
             DB::commit(); // Commit transaction
 
             Log::info('User created successfully:', [
-                'user_id' => $user->id,
-                'name'    => $user->name,
-                'email'   => $user->email,
-                'role'    => $user->role,
-                'status'  => $user->status,
+                'userId' => $user->id,
+                'name'   => $user->name,
+                'email'  => $user->email,
+                'role'   => $user->role,
+                'status' => $user->status,
             ]);
 
             return response()->json(['message' => 'User created successfully.', 'user' => $user], 201);
@@ -110,7 +110,7 @@ class ApiUserController extends Controller
             DB::rollBack();
             Log::error('Error creating user:', [
                 'message' => $e->getMessage(),
-                'trace'   => $e->getTraceAsString(),
+                'trace'  => $e->getTraceAsString(),
             ]);
             return response()->json(['error' => 'Something went wrong. Check logs.'], 500);
         }
@@ -122,23 +122,22 @@ class ApiUserController extends Controller
     public function show(User $user)
     {
         $formattedUser = [
-            'id'               => $user->id,
-            'name'             => $user->name,
-            'email'            => $user->email,
-            'emailVerifiedAt'  => $user->email_verified_at,
-            'role'             => $user->role,
-            'status'           => $user->status,
-            'phoneNumber'      => $user->phone_number,
-            'address'          => $user->address,
-            'profilePic'       => $user->profile_pic,
-            'coverPic'         => $user->cover_pic,
-            'createdAt'        => $user->created_at,
-            'updatedAt'        => $user->updated_at,
+            'id'              => $user->id,
+            'name'           => $user->name,
+            'email'          => $user->email,
+            'emailVerifiedAt' => $user->email_verified_at,
+            'role'           => $user->role,
+            'status'        => $user->status,
+            'phoneNumber'    => $user->phone_number,
+            'address'       => $user->address,
+            'profilePic'     => $user->profile_pic,
+            'coverPic'       => $user->cover_pic,
+            'createdAt'      => $user->created_at,
+            'updatedAt'      => $user->updated_at,
         ];
 
         return response()->json(['user' => $formattedUser], 200);
     }
-
 
     /**
      * Update the specified user in storage.
@@ -177,7 +176,7 @@ class ApiUserController extends Controller
 
             DB::commit();
 
-            Log::info('User updated successfully', ['user_id' => $user->id]);
+            Log::info('User updated successfully', ['userId' => $user->id]);
 
             // Store activity log
             $this->storeActivity("You updated this user (ID: " . $user->id . ")");
@@ -192,8 +191,6 @@ class ApiUserController extends Controller
             return response()->json(['error' => 'Failed to update user.'], 500);
         }
     }
-
-
 
     /**
      * Authenticate a user and log them into the system.
@@ -213,43 +210,57 @@ class ApiUserController extends Controller
         }
 
         $user = Auth::user();
-        Log::info('User authenticated successfully.', ['user_id' => $user->id]);
 
-        // Uncomment the following lines if you use API tokens (e.g., Laravel Sanctum)
-        // $token = $user->createToken('authToken')->plainTextToken;
-        // return response()->json([
-        //     'message' => 'Authentication successful.',
-        //     'user'    => $user,
-        //     'token'   => $token,
-        // ], 200);
+        // Check if the account is active
+        if ($user->status !== 'Active') {
+            Log::warning('Authentication failed - Inactive account', [
+                'email'  => $request->email,
+                'userId' => $user->id,
+                'status' => $user->status,
+            ]);
+            return response()->json(['error' => 'Account is inactive. Please contact support.'], 403);
+        }
+
+        Log::info('User authenticated successfully.', ['userId' => $user->id]);
 
         return response()->json(['message' => 'Authentication successful.', 'user' => $user], 200);
     }
 
+    /**
+     * Change the user's password.
+     */
     public function changePassword(Request $request)
     {
         // Validate input
         $validated = $request->validate([
-            'current_password'      => 'required',
-            'new_password'          => 'required|string|min:6|confirmed', // new_password_confirmation must be provided
+            'userId'          => 'required|exists:users,id',
+            'currentPassword' => 'required',
+            'newPassword'     => 'required|string|min:6|confirmed', // newPasswordConfirmation must be provided
         ]);
 
-        $user = Auth::user();
+        // Fetch the user by ID
+        $user = User::findOrFail($validated['userId']);
+
+        // Verify if the authenticated user is changing their own password
+        if (Auth::id() !== $user->id) {
+            Log::warning("Unauthorized password change attempt for userId: {$user->id} by userId: " . Auth::id());
+            return response()->json(['error' => 'Unauthorized action.'], 403);
+        }
 
         // Verify current password
-        if (!Hash::check($validated['current_password'], $user->password)) {
-            Log::error("Password change failed: Incorrect current password for user_id: {$user->id}");
+        if (!Hash::check($validated['currentPassword'], $user->password)) {
+            Log::error("Password change failed: Incorrect current password for userId: {$user->id}");
             return response()->json(['error' => 'Current password does not match.'], 400);
         }
 
         // Update password
-        $user->password = Hash::make($validated['new_password']);
+        $user->password = Hash::make($validated['newPassword']);
         $user->save();
 
         // Log the activity
         $this->storeActivity("User (ID: {$user->id}) changed their password.");
 
-        Log::info("Password updated successfully for user_id: {$user->id}");
+        Log::info("Password updated successfully for userId: {$user->id}");
         return response()->json(['message' => 'Password updated successfully.'], 200);
     }
 
@@ -264,10 +275,10 @@ class ApiUserController extends Controller
     {
         try {
             DB::table('activities')->insert([
-                'user_id'    => Auth::id(), // ID of the user performing the action
+                'userId'      => Auth::id(), // ID of the user performing the action
                 'description' => $description,
-                'created_at' => now(),
-                'updated_at' => now(),
+                'createdAt'   => now(),
+                'updatedAt'   => now(),
             ]);
             Log::info("Activity stored: {$description}");
             return true;

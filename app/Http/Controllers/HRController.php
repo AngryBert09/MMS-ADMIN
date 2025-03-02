@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Cache;
 
 
 class HRController extends Controller
@@ -16,41 +17,15 @@ class HRController extends Controller
     {
         Log::info('Fetching HR employee applications from API');
 
-        $apiKey = env('HR1_API_KEY');
+        $cacheKey = 'hr_employee_applications_list';
+        $cacheDuration = now()->addMinutes(30); // Cache for 30 minutes
 
-        $response = Http::withHeaders([
-            'Authorization' => 'Bearer ' . $apiKey,
-            'Accept'        => 'application/json'
-        ])->get('https://hr1.gwamerchandise.com/api/employee');
+        $filteredEmployees = Cache::remember($cacheKey, $cacheDuration, function () {
+            return $this->fetchHrApplications();
+        });
 
-        if ($response->successful()) {
-            Log::info('HR API request successful, processing employee data');
-
-            $employees = $response->json();
-            $filteredEmployees = [];
-
-            // Filter employees who do not have an account in the Users table
-            foreach ($employees as $employee) {
-                // Make sure the employee has an email to check
-                if (isset($employee['email']) && !empty($employee['email'])) {
-                    // If no user exists with this email, add the employee to the filtered list
-                    if (!User::where('email', $employee['email'])->exists()) {
-                        $filteredEmployees[] = $employee;
-                    }
-                }
-            }
-
-            Log::info('Filtered employee count (without accounts): ' . count($filteredEmployees));
-
-            return view('admin.users.upcoming-users', ['employees' => $filteredEmployees]);
-        } else {
-            Log::error('Failed to fetch HR employee data from API. Status: ' . $response->status());
-            return view('admin.users.upcoming-users', ['error' => 'Failed to fetch data']);
-        }
+        return view('admin.users.upcoming-users', ['employees' => $filteredEmployees]);
     }
-
-
-
 
     public function createHrAccount(Request $request, $employeeId)
     {
@@ -61,7 +36,6 @@ class HRController extends Controller
             return redirect()->back()->with('error', 'Employee not found.');
         }
 
-        // Retrieve HR API key from .env
         $apiKey = env('HR1_API_KEY');
 
         // Fetch employee details from HR API
@@ -80,7 +54,6 @@ class HRController extends Controller
 
         $employee = $response->json();
 
-        // Concatenate full name from first, middle, and last names
         $fullName = trim(
             ($employee['first_name'] ?? '') . ' ' .
                 ($employee['middle_name'] ?? '') . ' ' .
@@ -88,26 +61,94 @@ class HRController extends Controller
         );
         Log::debug("Concatenated full name: {$fullName}");
 
+        $uniqueNumber = mt_rand(1000, 9999);
+        $lastName = strtolower($employee['last_name'] ?? 'user');
+
+        $email = $lastName . $uniqueNumber . '@gwamerch.com';
+        $password = '#' . ucfirst($lastName) . 'GWA';
+
         try {
             $user = new User();
             $user->name = $fullName;
-            $user->email = $employee['email'] ?? null; // Ensure an email is provided
+            $user->email = $email;
             $user->phone_number = $employee['contact'] ?? null;
             $user->address = $employee['address'] ?? null;
-            $user->role = 'HR';
-            $user->password = Hash::make('#hrGWA'); // Default password
+            $user->role = 'Employee';
+            $user->password = Hash::make($password);
 
             Log::debug("User object before saving: " . json_encode($user->toArray()));
 
             $user->save();
 
-            Log::info("HR account created successfully for employee ID: {$employeeId}, user ID: {$user->id}");
+            // Remove only the newly created user from the cache
+            $this->removeUserFromCache($employee['email']);
+
+            Log::info("HR account created successfully for employee ID: {$employeeId}, user ID: {$user->id}, email: {$email}");
             return redirect()->back()->with('success', 'HR account created successfully.');
         } catch (\Exception $e) {
             Log::error("Error creating HR account for employee ID: {$employeeId}. Error: " . $e->getMessage());
             return redirect()->back()->with('error', 'Failed to create HR account.');
         }
     }
+
+    // Function to fetch HR employee applications
+    private function fetchHrApplications()
+    {
+        Log::info('Fetching HR employee applications from API');
+
+        $apiKey = env('HR1_API_KEY');
+
+        $response = Http::withHeaders([
+            'Authorization' => 'Bearer ' . $apiKey,
+            'Accept'        => 'application/json'
+        ])->get('https://hr1.gwamerchandise.com/api/employee');
+
+        if ($response->successful()) {
+            Log::info('HR API request successful, processing employee data');
+
+            $employees = $response->json();
+            $filteredEmployees = [];
+
+            foreach ($employees as $employee) {
+                if (!empty($employee['email']) && !User::where('email', $employee['email'])->exists()) {
+                    $filteredEmployees[] = $employee;
+                }
+            }
+
+            Log::info('Filtered employee count (without accounts): ' . count($filteredEmployees));
+            return $filteredEmployees;
+        } else {
+            Log::error('Failed to fetch HR employee data from API. Status: ' . $response->status());
+            return [];
+        }
+    }
+
+    // Function to remove a user from the cached HR applications list
+    private function removeUserFromCache($email)
+    {
+        Log::info("Removing user with email {$email} from HR applications cache");
+
+        $cacheKey = 'hr_employee_applications_list';
+
+        if (Cache::has($cacheKey)) {
+            $cachedEmployees = Cache::get($cacheKey);
+
+            // Remove the user from the cached list
+            $updatedEmployees = array_filter($cachedEmployees, function ($employee) use ($email) {
+                return $employee['email'] !== $email;
+            });
+
+            // Update the cache with the modified list
+            Cache::put($cacheKey, array_values($updatedEmployees), now()->addMinutes(30));
+
+            Log::info("User {$email} removed from cache successfully");
+        } else {
+            Log::warning("Cache key {$cacheKey} does not exist, skipping removal");
+        }
+    }
+
+
+
 
 
     /**

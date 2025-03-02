@@ -2,6 +2,79 @@
 <html lang="en">
 @include('layout.headerAssets')
 
+<!-- Announcement Modal -->
+<div class="modal fade" id="announcementModal" tabindex="-1" aria-labelledby="announcementModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg"> <!-- Large Modal -->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="announcementModalLabel">📢 System Announcement</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+
+                </button>
+            </div>
+            <div class="modal-body">
+                <h4>🔹 API Updates & Improvements</h4>
+                <ul>
+                    {{-- <li>🔄 <strong>Improved Authentication</strong>: Enhanced user authentication with Laravel Sanctum.
+                    </li> --}}
+                    {{-- <li>📡 <strong>Secure API Access</strong>: Users can now generate long-term API tokens for seamless
+                        integration.</li> --}}
+                    <li>🚀 <strong>Performance Boost</strong>: Optimized database queries for faster response times.
+                    </li>
+                </ul>
+                <p>For API documentation, please contact the system administrator.</p>
+
+                <hr>
+
+                <h4>🔹 User Roles & Permissions</h4>
+                <ul>
+                    <li>👑 <strong>Admin</strong>: Full access to the system, including user management and financial
+                        transactions.</li>
+                    <li>🛍 <strong>Vendor</strong>: Manages their own listings, transactions, and customer interactions.
+                    </li>
+                    <li>👤 <strong>Employee</strong>: Standard account for booking and interacting with services.</li>
+                    <li>📂 <strong>HR</strong>: Manages employee records and internal administration.</li>
+                </ul>
+
+                <hr>
+
+                <h4>🔹 Account Statuses</h4>
+                <ul>
+                    <li>✅ <strong>Active</strong>: The account is fully operational and can log in.</li>
+                    <li>⛔ <strong>Inactive</strong>: The account is restricted; please contact support for activation.
+                    </li>
+                </ul>
+
+                <hr>
+
+                <h4>🔹 Default Password Policy</h4>
+                <p>Newly created accounts are assigned a default password based on their role:</p>
+                <ul>
+                    <li>🔑 <strong>Admin</strong> → <code>#adminGWA</code></li>
+                    <li>🔑 <strong>Vendor</strong> → <code>#vendorGWA</code></li>
+                    <li>🔑 <strong>Employee</strong> → <code>#employeeGWA</code></li>
+                    <li>🔑 <strong>HR</strong> → <code>#hrGWA</code></li>
+                </ul>
+                <p>💡 <strong>For security reasons, please change your password immediately after logging in.</strong>
+                </p>
+
+                <hr>
+
+                <p>If you have any questions or require assistance, feel free to contact support. Thank you for being
+                    part of <strong>GreatWallArts</strong>! 🎨✨</p>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        var announcementModal = new bootstrap.Modal(document.getElementById('announcementModal'));
+        announcementModal.show();
+    });
+</script>
+
+
+
 <body>
     <div class="main-wrapper login-body">
         <div class="login-wrapper">
@@ -29,17 +102,6 @@
                                 </div>
                                 <div class="form-group">
                                     <div class="row">
-                                        <div class="col-6">
-                                            <div class="custom-control custom-checkbox">
-                                                <input type="checkbox" class="custom-control-input" id="cb1"
-                                                    name="remember">
-                                                <label class="custom-control-label" for="cb1">Remember me</label>
-                                            </div>
-                                        </div>
-                                        <div class="col-6 text-end">
-                                            <a class="forgot-link" href="{{ route('password.request') }}">Forgot
-                                                Password?</a>
-                                        </div>
                                     </div>
                                 </div>
 

@@ -307,7 +307,7 @@ table.table td h2.table-avatar {
 }
 
 .table .invoice-link {
-    color: #7638ff
+    color: #ffbc34
 }
 
 .table .invoice-link:hover {
@@ -670,7 +670,7 @@ button.bg-danger:hover {
 
 .text-primary,
 .dropdown-menu>li>a.text-primary {
-    color: #7638ff !important
+    color: #ffbc34 !important
 }
 
 s .text-success,
@@ -695,7 +695,7 @@ s .text-success,
 
 .text-purple,
 .dropdown-menu>li>a.text-purple {
-    color: #7460ee !important
+    color: #ffbc34 !important
 }
 
 .text-muted {
@@ -703,8 +703,8 @@ s .text-success,
 }
 
 .btn-primary {
-    background-color: #7638ff;
-    border          : 1px solid #7638ff
+    background-color: #ffbc34;
+    border          : 1px solid #ffbc34
 }
 
 .btn-primary:hover,
@@ -3322,7 +3322,7 @@ html.menu-opened body {
 }
 
 .sidebar-menu li a:hover {
-    color: #7638ff
+    color: #ffbc34
 }
 
 .sidebar-menu>ul>li>a:hover {
@@ -7850,7 +7850,7 @@ body[data-layout-mode=dark] .alertify .ajs-footer .ajs-buttons .ajs-button.ajs-o
 }
 
 .selectbox p .select-icon {
-    color : #7638ff;
+    color : #ffbc34;
     width : 20px;
     height: 20px
 }
@@ -7861,9 +7861,9 @@ body[data-layout-mode=dark] .alertify .ajs-footer .ajs-buttons .ajs-button.ajs-o
 
 .report-btn .btn {
     font-weight  : 600;
-    color        : #7638ff;
+    color        : #ffbc34;
     background   : #fff;
-    border       : 2px solid #7638ff;
+    border       : 2px solid #ffbc34;
     border-radius: 8px;
     width        : 100%;
     padding      : 11px 0
@@ -7871,8 +7871,8 @@ body[data-layout-mode=dark] .alertify .ajs-footer .ajs-buttons .ajs-button.ajs-o
 
 .report-btn .btn:hover {
     color     : #fff;
-    background: #7638ff;
-    border    : 2px solid #7638ff
+    background: #ffbc34;
+    border    : 2px solid #ffbc34
 }
 
 .report-btn .btn:hover img {
@@ -7917,8 +7917,8 @@ body[data-layout-mode=dark] .alertify .ajs-footer .ajs-buttons .ajs-button.ajs-o
 }
 
 .invoices-tabs ul li a.active {
-    color        : #7638ff;
-    border-bottom: 2px solid #7638ff
+    color        : #ffbc34;
+    border-bottom: 2px solid #ffbc34
 }
 
 .invoices-settings-btn {
@@ -7998,7 +7998,7 @@ body[data-layout-mode=dark] .alertify .ajs-footer .ajs-buttons .ajs-button.ajs-o
 .inovices-widget-header .inovices-amount {
     font-weight: 600;
     font-size  : 24px;
-    color      : #7638ff
+    color      : #ffbc34
 }
 
 .inovices-all {
