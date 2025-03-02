@@ -52,7 +52,7 @@
                 <ul>
                     <li>🔑 <strong>Admin</strong> → <code>#adminGWA</code></li>
                     <li>🔑 <strong>Vendor</strong> → <code>#vendorGWA</code></li>
-                    <li>🔑 <strong>Employee</strong> → <code>#employeeGWA</code></li>
+                    <li>🔑 <strong>Employee</strong> → <code>#yourlastnameGWA</code></li>
                     <li>🔑 <strong>HR</strong> → <code>#hrGWA</code></li>
                 </ul>
                 <p>💡 <strong>For security reasons, please change your password immediately after logging in.</strong>
