@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use App\Models\User;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 
 class AuthController extends Controller
@@ -101,6 +102,8 @@ class AuthController extends Controller
     public function logout()
     {
         Auth::logout();
+
+        Cache::flush(); // Clears all cache
         return redirect()->route('auth.login')->with('success', 'Logged out successfully');
     }
 }
