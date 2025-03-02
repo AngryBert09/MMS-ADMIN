@@ -138,32 +138,32 @@ return [
     |                               or ['GSSAPI','PLAIN'] if you are using outlook mail
     |
     */
-    'options' => [
-        'delimiter' => '/',
-        // 'fetch' => \Webklex\PHPIMAP\IMAP::FT_PEEK,
-        'sequence' => \Webklex\PHPIMAP\IMAP::ST_UID,
-        'fetch_body' => true,
-        'fetch_flags' => true,
-        'soft_fail' => false,
-        'rfc822' => true,
-        'debug' => false,
-        'uid_cache' => true,
-        // 'fallback_date' => "01.01.1970 00:00:00",
-        'boundary' => '/boundary=(.*?(?=;)|(.*))/i',
-        'message_key' => 'list',
-        'fetch_order' => 'asc',
-        'dispositions' => ['attachment', 'inline'],
-        'common_folders' => [
-            "root" => "INBOX",
-            "junk" => "INBOX/Junk",
-            "draft" => "INBOX/Drafts",
-            "sent" => "INBOX/Sent",
-            "trash" => "INBOX/Trash",
-        ],
-        'open' => [
-            // 'DISABLE_AUTHENTICATOR' => 'GSSAPI'
-        ]
-    ],
+    // 'options' => [
+    //     'delimiter' => '/',
+    //     // 'fetch' => \Webklex\PHPIMAP\IMAP::FT_PEEK,
+    //     'sequence' => \Webklex\PHPIMAP\IMAP::ST_UID,
+    //     'fetch_body' => true,
+    //     'fetch_flags' => true,
+    //     'soft_fail' => false,
+    //     'rfc822' => true,
+    //     'debug' => false,
+    //     'uid_cache' => true,
+    //     // 'fallback_date' => "01.01.1970 00:00:00",
+    //     'boundary' => '/boundary=(.*?(?=;)|(.*))/i',
+    //     'message_key' => 'list',
+    //     'fetch_order' => 'asc',
+    //     'dispositions' => ['attachment', 'inline'],
+    //     'common_folders' => [
+    //         "root" => "INBOX",
+    //         "junk" => "INBOX/Junk",
+    //         "draft" => "INBOX/Drafts",
+    //         "sent" => "INBOX/Sent",
+    //         "trash" => "INBOX/Trash",
+    //     ],
+    //     'open' => [
+    //         // 'DISABLE_AUTHENTICATOR' => 'GSSAPI'
+    //     ]
+    // ],
 
     /**
      * |--------------------------------------------------------------------------
