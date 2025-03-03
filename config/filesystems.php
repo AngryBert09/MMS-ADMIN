@@ -15,6 +15,9 @@ return [
 
     'default' => env('FILESYSTEM_DISK', 'local'),
 
+
+    'max_size' => env('MAX_UPLOAD_SIZE', 100 * 1024 * 1024), // 100MB
+
     /*
     |--------------------------------------------------------------------------
     | Filesystem Disks
@@ -41,7 +44,7 @@ return [
         'public' => [
             'driver' => 'local',
             'root' => storage_path('app/public'),
-            'url' => env('APP_URL').'/storage',
+            'url' => env('APP_URL') . '/storage',
             'visibility' => 'public',
             'throw' => false,
             'report' => false,

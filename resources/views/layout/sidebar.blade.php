@@ -7,6 +7,24 @@
                     <a href="{{ route('dashboard') }}"><i data-feather="home"></i> <span>Dashboard</span></a>
                 </li>
                 <li class="submenu">
+                    <a href="#"><i class="fa fa-bullhorn"></i> <span> Announcements</span> <span
+                            class="menu-arrow"></span></a>
+
+                    <ul>
+                        <li>
+                            <a href="{{ route('applications.chat') }}">
+                                Chat <span style="color: black; font-size: 0.8em; margin-left: 5px;">[BETA]</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ route('applications.inbox') }}">
+                                Email <span style="color: black; font-size: 0.8em; margin-left: 5px;">[BETA]</span>
+                            </a>
+                        </li>
+                    </ul>
+
+                </li>
+                <li class="submenu">
                     <a href="#"><i data-feather="user"></i> <span> Users</span> <span
                             class="menu-arrow"></span></a>
                     <ul>
@@ -26,7 +44,7 @@
                     </ul>
                 </li>
                 <li>
-                    <a href="estimates.html"><i data-feather="file-text"></i> <span>Documents</span></a>
+                    <a href="{{ route('admin.documents') }}"><i data-feather="file-text"></i> <span>Documents</span></a>
                 </li>
                 <li class="submenu">
                     <a href="#"><i data-feather="grid"></i> <span> Application</span> <span
@@ -45,6 +63,8 @@
                     </ul>
 
                 </li>
+
+
 
                 <li>
                     <a href="{{ route('profile.edit') }}"><i data-feather="settings"></i> <span>Settings</span></a>

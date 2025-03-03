@@ -18,6 +18,8 @@ use App\Http\Controllers\SalesReportController;
 
 
 
+
+
 Route::get('/users', [ApiUserController::class, 'index']);
 Route::get('/users/{user}', [ApiUserController::class, 'show']);
 Route::put('/users/{user}', [ApiUserController::class, 'update']);
