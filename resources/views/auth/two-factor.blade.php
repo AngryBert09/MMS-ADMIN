@@ -76,7 +76,7 @@
                 }
 
                 // Initial 30-second countdown on page load
-                startCountdown();
+                startCountdown(30);
 
                 form.addEventListener('submit', function(event) {
                     event.preventDefault();
