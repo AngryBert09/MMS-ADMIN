@@ -745,8 +745,8 @@ s .text-success,
 
 .btn-primary.disabled,
 .btn-primary:disabled {
-    background-color: #7638ff;
-    border-color    : #7638ff;
+    background-color: #ffbc34;
+    border-color    : #ffbc34;
     color           : #fff
 }
 
@@ -966,13 +966,13 @@ s .text-success,
 }
 
 .btn-outline-primary {
-    color       : #7638ff;
-    border-color: #7638ff
+    color       : #ffbc34;
+    border-color: #ffbc34
 }
 
 .btn-outline-primary:hover {
-    background-color: #7638ff;
-    border-color    : #7638ff
+    background-color: #ffbc34;
+    border-color    : #ffbc34
 }
 
 .btn-outline-primary:focus,
@@ -982,15 +982,15 @@ s .text-success,
 
 .btn-outline-primary.disabled,
 .btn-outline-primary:disabled {
-    color           : #7638ff;
+    color           : #ffbc34;
     background-color: transparent
 }
 
 .btn-outline-primary:not(:disabled):not(.disabled):active,
 .btn-outline-primary:not(:disabled):not(.disabled).active,
 .show>.btn-outline-primary.dropdown-toggle {
-    background-color: #7638ff;
-    border-color    : #7638ff
+    background-color: #ffbc34;
+    border-color    : #ffbc34
 }
 
 .btn-outline-primary:not(:disabled):not(.disabled):active:focus,
@@ -1531,8 +1531,8 @@ s .text-success,
 }
 
 .paid-continue-btn {
-    background-color: #7638ff;
-    border          : 1px solid #7638ff;
+    background-color: #ffbc34;
+    border          : 1px solid #ffbc34;
     border-radius   : 5px;
     color           : #fff;
     display         : block;

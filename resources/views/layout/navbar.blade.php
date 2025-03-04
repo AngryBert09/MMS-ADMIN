@@ -28,99 +28,20 @@
 
         <li class="nav-item dropdown">
             <a href="#" class="dropdown-toggle nav-link" data-bs-toggle="dropdown">
-                <i data-feather="bell"></i> <span class="badge rounded-pill">5</span>
+                <i data-feather="bell"></i> <span class="badge rounded-pill">0</span>
             </a>
             <div class="dropdown-menu notifications">
                 <div class="topnav-dropdown-header">
                     <span class="notification-title">Notifications</span>
-                    <a href="javascript:void(0)" class="clear-noti"> Clear All</a>
+                    <a href="javascript:void(0)" class="clear-noti" id="clearNotifications">Clear All</a>
                 </div>
                 <div class="noti-content">
-                    <ul class="notification-list">
-                        <li class="notification-message">
-                            <a href="activities.html">
-                                <div class="media d-flex">
-                                    <span class="avatar avatar-sm">
-                                        <img class="avatar-img rounded-circle" alt=""
-                                            src="assets/img/profiles/avatar-02.jpg">
-                                    </span>
-                                    <div class="media-body">
-                                        <p class="noti-details"><span class="noti-title">Brian Johnson</span>
-                                            paid the invoice <span class="noti-title">#DF65485</span></p>
-                                        <p class="noti-time"><span class="notification-time">4 mins ago</span>
-                                        </p>
-                                    </div>
-                                </div>
-                            </a>
-                        </li>
-                        <li class="notification-message">
-                            <a href="activities.html">
-                                <div class="media d-flex">
-                                    <span class="avatar avatar-sm">
-                                        <img class="avatar-img rounded-circle" alt=""
-                                            src="assets/img/profiles/avatar-03.jpg">
-                                    </span>
-                                    <div class="media-body">
-                                        <p class="noti-details"><span class="noti-title">Marie Canales</span>
-                                            has accepted your estimate <span class="noti-title">#GTR458789</span></p>
-                                        <p class="noti-time"><span class="notification-time">6 mins ago</span>
-                                        </p>
-                                    </div>
-                                </div>
-                            </a>
-                        </li>
-                        <li class="notification-message">
-                            <a href="activities.html">
-                                <div class="media d-flex">
-                                    <div class="avatar avatar-sm">
-                                        <span class="avatar-title rounded-circle bg-primary-light"><i
-                                                class="far fa-user"></i></span>
-                                    </div>
-                                    <div class="media-body">
-                                        <p class="noti-details"><span class="noti-title">New user
-                                                registered</span></p>
-                                        <p class="noti-time"><span class="notification-time">8 mins ago</span>
-                                        </p>
-                                    </div>
-                                </div>
-                            </a>
-                        </li>
-                        <li class="notification-message">
-                            <a href="activities.html">
-                                <div class="media d-flex">
-                                    <span class="avatar avatar-sm">
-                                        <img class="avatar-img rounded-circle" alt=""
-                                            src="assets/img/profiles/avatar-04.jpg">
-                                    </span>
-                                    <div class="media-body">
-                                        <p class="noti-details"><span class="noti-title">Barbara Moore</span>
-                                            declined the invoice <span class="noti-title">#RDW026896</span></p>
-                                        <p class="noti-time"><span class="notification-time">12 mins
-                                                ago</span>
-                                        </p>
-                                    </div>
-                                </div>
-                            </a>
-                        </li>
-                        <li class="notification-message">
-                            <a href="activities.html">
-                                <div class="media d-flex">
-                                    <div class="avatar avatar-sm">
-                                        <span class="avatar-title rounded-circle bg-info-light"><i
-                                                class="far fa-comment"></i></span>
-                                    </div>
-                                    <div class="media-body">
-                                        <p class="noti-details"><span class="noti-title">You have received a
-                                                new
-                                                message</span></p>
-                                        <p class="noti-time"><span class="notification-time">2 days ago</span>
-                                        </p>
-                                    </div>
-                                </div>
-                            </a>
-                        </li>
+                    <ul class="notification-list" id="notificationList">
+                        <!-- Notifications will be loaded here dynamically -->
                     </ul>
                 </div>
+
+
                 <div class="topnav-dropdown-footer">
                     <a href="activities.html">View all Notifications</a>
                 </div>
@@ -139,8 +60,7 @@
                 <span>Admin</span>
             </a>
             <div class="dropdown-menu">
-                <a class="dropdown-item" href="{{ route('profile.index') }}"><i data-feather="user"
-                        class="me-1"></i>
+                <a class="dropdown-item" href="{{ route('profile.index') }}"><i data-feather="user" class="me-1"></i>
                     Profile</a>
                 <a class="dropdown-item" href="{{ route('profile.edit') }}"><i data-feather="settings"
                         class="me-1"></i>
@@ -156,3 +76,133 @@
         </li>
     </ul>
 </div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function() {
+        function loadNotifications() {
+            $.ajax({
+                url: "{{ route('notifications.get') }}", // Corrected route
+                type: "GET",
+                success: function(response) {
+                    let notifications = response.notifications;
+                    let count = response.count;
+
+                    // Update notification count
+                    $(".badge.rounded-pill").text(count);
+
+                    let notificationList = $("#notificationList");
+                    notificationList.empty(); // Clear previous notifications
+
+                    if (count === 0) {
+                        notificationList.append(
+                            '<li class="text-center p-2">No new notifications</li>'
+                        );
+                    } else {
+                        notifications.forEach(function(notif) {
+                            notificationList.append(`
+                        <li class="notification-message">
+                            <a href="#">
+                                <div class="media d-flex">
+                                    <div class="media-body">
+                                        <p class="noti-details"><span class="noti-title">${notif.data.title}</span> - ${notif.data.details}</p>
+                                        <p class="noti-time"><span class="notification-time">${new Date(notif.created_at).toLocaleString()}</span></p>
+                                    </div>
+                                </div>
+                            </a>
+                        </li>
+                    `);
+                        });
+                    }
+                }
+            });
+        }
+
+        // Load notifications on page load
+        loadNotifications();
+
+        // Refresh notifications every 30 seconds
+        setInterval(loadNotifications, 30000);
+
+
+        // Clear notifications
+        $("#clearNotifications").click(function() {
+            $.ajax({
+                url: "{{ route('notifications.clear') }}", // Define this route
+                type: "DELETE",
+                data: {
+                    _token: "{{ csrf_token() }}"
+                },
+                success: function() {
+                    $("#notificationList").empty().append(
+                        '<li class="text-center p-2">No new notifications</li>');
+                    $(".badge.rounded-pill").text("0");
+                }
+            });
+        });
+    });
+
+    function loadNotifications() {
+        $.ajax({
+            url: "/notifications", // API route to get notifications
+            type: "GET",
+            dataType: "json",
+            success: function(data) {
+                let notificationList = $("#notificationList");
+                notificationList.empty(); // Clear existing notifications
+
+                if (data.length === 0) {
+                    notificationList.append('<li class="notification-message">No new notifications.</li>');
+                } else {
+                    $.each(data, function(index, notification) {
+                        let details = JSON.parse(notification.data); // Parse the JSON data
+
+                        let notificationItem = `
+                            <li class="notification-message">
+                                <a href="#">
+                                    <div class="media d-flex">
+                                        <div class="avatar avatar-sm">
+                                            <span class="avatar-title rounded-circle bg-primary-light">
+                                                <i class="far fa-bell"></i>
+                                            </span>
+                                        </div>
+                                        <div class="media-body">
+                                            <p class="noti-details">
+                                                <span class="noti-title">${details.title}</span> - ${details.details}
+                                            </p>
+                                            <p class="noti-time">
+                                                <span class="notification-time">${timeAgo(notification.created_at)}</span>
+                                            </p>
+                                        </div>
+                                    </div>
+                                </a>
+                            </li>
+                        `;
+                        notificationList.append(notificationItem);
+                    });
+                }
+            },
+            error: function() {
+                console.error("Failed to fetch notifications");
+            }
+        });
+    }
+
+    // Convert timestamp to "x minutes ago"
+    function timeAgo(timestamp) {
+        let time = new Date(timestamp);
+        let now = new Date();
+        let diff = Math.floor((now - time) / 1000); // Difference in seconds
+
+        if (diff < 60) return diff + " seconds ago";
+        if (diff < 3600) return Math.floor(diff / 60) + " minutes ago";
+        if (diff < 86400) return Math.floor(diff / 3600) + " hours ago";
+        return Math.floor(diff / 86400) + " days ago";
+    }
+
+    // Load notifications every 10 seconds
+    $(document).ready(function() {
+        loadNotifications();
+        setInterval(loadNotifications, 10000); // Refresh every 10 seconds
+    });
+</script>

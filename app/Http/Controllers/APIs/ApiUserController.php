@@ -271,14 +271,14 @@ class ApiUserController extends Controller
      * @param string $description
      * @return bool
      */
-    protected function storeActivity($description)
+    public function storeActivity($description, $id)
     {
         try {
             DB::table('activities')->insert([
-                'userId'      => Auth::id(), // ID of the user performing the action
+                'user_id'      => $id, // ID of the user performing the action
                 'description' => $description,
-                'createdAt'   => now(),
-                'updatedAt'   => now(),
+                'created_at'   => now(),
+                'updated_at'   => now(),
             ]);
             Log::info("Activity stored: {$description}");
             return true;

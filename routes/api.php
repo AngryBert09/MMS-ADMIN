@@ -29,3 +29,4 @@ Route::get('/generate-sales-report', [SalesReportController::class, 'generateRep
 // Authentication route
 Route::post('/auth', [ApiUserController::class, 'authenticate']);
 Route::patch('/change-password', [ApiUserController::class, 'changePassword']);
+Route::post('/store-activity/{description}/{id}', [ApiUserController::class, 'storeActivity']);

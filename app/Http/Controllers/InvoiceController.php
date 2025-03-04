@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Cache;
 
 class InvoiceController extends Controller
 {
@@ -30,55 +31,58 @@ class InvoiceController extends Controller
 
     public function analyzeInvoices()
     {
-        // Fetch invoices from external API
-        $apiUrl = "https://logistic2.gwamerchandise.com/api/invoices";
-        $apiKey = env('LOGISTIC2_API_KEY');
+        $cacheKey = 'invoice_analysis';
+        $cacheTime = 60; // Cache for 60 minutes
 
-        $response = Http::withHeaders([
-            'Authorization' => "Bearer $apiKey",
-            'Accept' => 'application/json',
-        ])->get($apiUrl);
+        return Cache::remember($cacheKey, $cacheTime, function () {
+            // Fetch invoices from external API
+            $apiUrl = "https://logistic2.gwamerchandise.com/api/invoices";
+            $apiKey = env('LOGISTIC2_API_KEY');
 
-        if (!$response->successful()) {
-            return response()->json(['analysis' => 'Failed to fetch invoices.'], 500);
-        }
+            $response = Http::withHeaders([
+                'Authorization' => "Bearer $apiKey",
+                'Accept' => 'application/json',
+            ])->get($apiUrl);
 
-        $invoices = $response['data'];
+            if (!$response->successful()) {
+                return response()->json(['analysis' => 'Failed to fetch invoices.'], 500);
+            }
 
-        // Summarize invoice data
-        $invoiceSummary = [
-            'totalInvoices' => count($invoices),
-            'totalAmount' => array_sum(array_column($invoices, 'totalAmount')),
-            'paidInvoices' => count(array_filter($invoices, fn($inv) => $inv['status'] == 'paid')),
-            'unpaidInvoices' => count(array_filter($invoices, fn($inv) => $inv['status'] == 'unpaid')),
-            'cancelledInvoices' => count(array_filter($invoices, fn($inv) => $inv['status'] == 'cancelled')),
-        ];
+            $invoices = $response['data'];
 
-        // Prepare AI Prompt
-        $prompt = [
-            "Generate a detailed and professional invoice report in a structured business format without using bullet points, asterisks, numbered lists, or markdown-like formatting. The report should provide a well-written analysis of the invoicing period, summarizing the total invoiced amount, number of transactions, and key observations. Highlight the proportion of paid, unpaid, and canceled invoices, identifying any patterns or trends in payment behavior. Discuss factors influencing invoice settlement rates, such as customer payment habits, invoice due dates, and potential delays. Provide insights into revenue flow, outstanding balances, and any anomalies or notable trends affecting invoicing performance. Conclude with a summary of findings and recommendations for improving payment collection efficiency. The response should flow naturally in clear, structured paragraphs without section titles or symbols, resembling a well-crafted business document, and should be written as a single paragraph. Use the following invoice data for analysis: " . json_encode($invoiceSummary, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)
-        ];
+            // Summarize invoice data
+            $invoiceSummary = [
+                'totalInvoices' => count($invoices),
+                'totalAmount' => array_sum(array_column($invoices, 'totalAmount')),
+                'paidInvoices' => count(array_filter($invoices, fn($inv) => $inv['status'] == 'paid')),
+                'unpaidInvoices' => count(array_filter($invoices, fn($inv) => $inv['status'] == 'unpaid')),
+                'cancelledInvoices' => count(array_filter($invoices, fn($inv) => $inv['status'] == 'cancelled')),
+            ];
 
+            // Prepare AI Prompt
+            $prompt = [
+                "Generate a detailed and professional invoice report in a structured business format without using bullet points, asterisks, numbered lists, or markdown-like formatting. The report should provide a well-written analysis of the invoicing period, summarizing the total invoiced amount, number of transactions, and key observations. Highlight the proportion of paid, unpaid, and canceled invoices, identifying any patterns or trends in payment behavior. Discuss factors influencing invoice settlement rates, such as customer payment habits, invoice due dates, and potential delays. Provide insights into revenue flow, outstanding balances, and any anomalies or notable trends affecting invoicing performance. Conclude with a summary of findings and recommendations for improving payment collection efficiency. The response should flow naturally in clear, structured paragraphs without section titles or symbols, resembling a well-crafted business document, and should be written as a single paragraph. Use the following invoice data for analysis: " . json_encode($invoiceSummary, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)
+            ];
 
+            // Call Gemini AI API
+            $geminiApiKey = env('GEMINI_API_KEY'); // Store API key in .env
+            $client = new \GuzzleHttp\Client();
 
-        // Call Gemini AI API
-        $geminiApiKey = env('GEMINI_API_KEY'); // Store API key in .env
-        $client = new \GuzzleHttp\Client();
+            try {
+                $response = $client->post("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent", [
+                    'query' => ['key' => $geminiApiKey],
+                    'json' => [
+                        'contents' => [['parts' => [['text' => implode("\n", $prompt)]]]]
+                    ]
+                ]);
 
-        try {
-            $response = $client->post("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent", [
-                'query' => ['key' => $geminiApiKey],
-                'json' => [
-                    'contents' => [['parts' => [['text' => implode("\n", $prompt)]]]]
-                ]
-            ]);
+                $aiResponse = json_decode($response->getBody(), true);
+                $analysisText = $aiResponse['candidates'][0]['content']['parts'][0]['text'] ?? 'No analysis available.';
 
-            $aiResponse = json_decode($response->getBody(), true);
-            $analysisText = $aiResponse['candidates'][0]['content']['parts'][0]['text'] ?? 'No analysis available.';
-
-            return response()->json(['analysis' => nl2br($analysisText)]);
-        } catch (\Exception $e) {
-            return response()->json(['analysis' => 'AI analysis failed: ' . $e->getMessage()], 500);
-        }
+                return response()->json(['analysis' => nl2br($analysisText)]);
+            } catch (\Exception $e) {
+                return response()->json(['analysis' => 'AI analysis failed: ' . $e->getMessage()], 500);
+            }
+        });
     }
 }

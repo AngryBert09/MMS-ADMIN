@@ -329,4 +329,20 @@ class UserController extends Controller
             return redirect()->route('create.roles')->with('error', 'An error occurred while processing the role.');
         }
     }
+
+    public function getUserActivityLogs($userId)
+    {
+        try {
+            // Fetch activity logs for the user
+            $activities = DB::table('activities')
+                ->where('user_id', $userId)
+                ->orderBy('created_at', 'desc')
+                ->get();
+
+            return response()->json(['activities' => $activities]);
+        } catch (\Exception $e) {
+            Log::error('Error fetching user activity logs:', ['error' => $e->getMessage()]);
+            return response()->json(['error' => 'Failed to fetch user activity logs'], 500);
+        }
+    }
 }

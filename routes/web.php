@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\DashboardController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\VendorController;
@@ -9,11 +10,11 @@ use App\Http\Controllers\EmailController;
 use App\Http\Controllers\HRController;
 use App\Http\Controllers\SalesReportController;
 use App\Http\Controllers\DocumentController;
+use App\Http\Middleware\RedirectIfAuthenticatedFor2FA;
 use App\Http\Controllers\InvoiceController;
+use App\Http\Controllers\NotificationController;
 
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware('admin')->name('dashboard');
+Route::get('/dashboard', [DashboardController::class, 'getDashboard'])->name('dashboard')->middleware('admin');
 
 
 Route::resource('users', UserController::class)->middleware('admin');
@@ -58,15 +59,17 @@ Route::get('/forgot-password', function () {
 
 
 
-
+Route::middleware(['redirect.if.authenticated.2fa'])->group(function () {
+    Route::get('/2fa/verify', function () {
+        return view('auth.two-factor');
+    })->name('auth.2fa.verify');
+    Route::post('/2fa/verify', [AuthController::class, 'verify2FA'])->name('auth.2fa.verify');
+    Route::post('/2fa/resend', [AuthController::class, 'resend2FA'])->name('auth.2fa.resend');
+});
 
 Route::get('/chats', function () {
     return view('admin.applications.chat');
 })->middleware('admin')->name('applications.chat');
-
-Route::get('/two-factor', function () {
-    return view('auth.two-factor');
-})->middleware('admin')->name('auth.two-factor');
 
 
 
@@ -85,9 +88,23 @@ Route::get('/documents/view/{id}', [DocumentController::class, 'view'])->name('d
 Route::get('/documents/download/{id}', [DocumentController::class, 'download'])->name('documents.download');
 Route::delete('/documents/delete/{id}', [DocumentController::class, 'delete'])->name('documents.delete');
 
+Route::get('/notifications-counts', [NotificationController::class, 'getNotifications'])->name('notifications.get');
 
+Route::get('/notifications', [NotificationController::class, 'showNotifications']);
+Route::delete('/notifications/clear', [NotificationController::class, 'clear'])->name('notifications.clear');
 
 Route::get('/invoices', [InvoiceController::class, 'getInvoices'])->name('reports.invoices')->middleware('admin');
 Route::get('/admin/invoices/analyze', [InvoiceController::class, 'analyzeInvoices'])
     ->name('admin.invoices.analyze');
 Route::put('/vendor/{id}/update-status/{status}', [VendorController::class, 'updateVendorStatus']);
+
+
+Route::get('/user/{id}/activity-logs', [UserController::class, 'getUserActivityLogs']);
+
+
+//FOR DASHBOARD
+Route::get('/sales-data', [DashboardController::class, 'getSalesData']);
+Route::get('/invoices/count', [DashboardController::class, 'getInvoiceCount']);
+Route::get('/invoice-analytics', [DashboardController::class, 'getInvoiceAnalytics']);
+Route::get('/fetch-employees', [DashboardController::class, 'fetchHrApplications']);
+Route::get('/document-stats', [DashboardController::class, 'getDocumentStats']);
