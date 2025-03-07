@@ -45,27 +45,71 @@
                                             <tr>
                                                 <th>#ID</th>
                                                 <th>Order Date</th>
+                                                <th>Products</th>
                                                 <th>Total Amount</th>
-                                                <th>Status</th>
-                                                <th>Customer ID</th>
-                                                <th>Payment Method</th>
+                                                <th>Earnings</th>
                                                 <th class="text-end">Created At</th>
                                             </tr>
                                         </thead>
                                         <tbody id="sales_table_body">
-                                            @foreach ($sales as $sale)
+                                            @foreach ($sales as $index => $sale)
                                                 <tr>
-                                                    <td>{{ $sale->id }}</td>
-                                                    <td>{{ $sale->order_date }}</td>
-                                                    <td>${{ number_format($sale->total_amount, 2) }}</td>
-                                                    <td>{{ $sale->status }}</td>
-                                                    <td>{{ $sale->customer_id }}</td>
-                                                    <td>{{ $sale->payment_method }}</td>
-                                                    <td class="text-end">{{ $sale->created_at }}</td>
+                                                    <td>{{ $sale['id'] }}</td>
+                                                    <td>{{ \Carbon\Carbon::parse($sale['timestamp'])->format('Y-m-d H:i') }}
+                                                    </td>
+                                                    <td>
+                                                        <button class="btn btn-primary btn-sm" data-bs-toggle="modal"
+                                                            data-bs-target="#productModal{{ $index }}">
+                                                            View Products
+                                                        </button>
+                                                    </td>
+                                                    <td>${{ number_format($sale['total_sum'], 2) }}</td>
+                                                    <td>${{ number_format($sale['earnings'], 2) }}</td>
+                                                    <td class="text-end">
+                                                        {{ \Carbon\Carbon::parse($sale['timestamp'])->format('Y-m-d H:i') }}
+                                                    </td>
                                                 </tr>
+
+                                                <!-- Product Modal -->
+                                                <div class="modal fade" id="productModal{{ $index }}"
+                                                    tabindex="-1"
+                                                    aria-labelledby="productModalLabel{{ $index }}"
+                                                    aria-hidden="true">
+                                                    <div class="modal-dialog">
+                                                        <div class="modal-content">
+                                                            <div class="modal-header">
+                                                                <h5 class="modal-title"
+                                                                    id="productModalLabel{{ $index }}">Product
+                                                                    Details</h5>
+                                                                <button type="button" class="btn-close"
+                                                                    data-bs-dismiss="modal" aria-label="Close"></button>
+                                                            </div>
+                                                            <div class="modal-body">
+                                                                <ul class="list-group">
+                                                                    @foreach ($sale['cart_items'] as $item)
+                                                                        <li class="list-group-item">
+                                                                            <strong>{{ $item['product_name'] }}</strong><br>
+                                                                            Regular Price:
+                                                                            ${{ number_format($item['regular_price'], 2) }}<br>
+                                                                            Sale Price:
+                                                                            ${{ number_format($item['sale_price'], 2) }}
+                                                                        </li>
+                                                                    @endforeach
+                                                                </ul>
+                                                            </div>
+                                                            <div class="modal-footer">
+                                                                <button type="button" class="btn btn-secondary"
+                                                                    data-bs-dismiss="modal">Close</button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
                                             @endforeach
                                         </tbody>
+
                                     </table>
+
+
                                 </div>
                             </div>
                         </div>

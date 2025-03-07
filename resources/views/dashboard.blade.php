@@ -218,19 +218,19 @@
                                     <div class="w-md-100 d-flex align-items-center mb-3 flex-wrap flex-md-nowrap">
                                         <div>
                                             <span>Total Sales</span>
-                                            <p class="h3 text-primary me-5" id="totalSales">$0</p>
+                                            <p class="h3 text-primary me-5" id="totalSales">₱0</p>
                                         </div>
                                         <div>
                                             <span>Receipts</span>
-                                            <p class="h3 text-success me-5" id="receipts">$0</p>
+                                            <p class="h3 text-success me-5" id="receipts">₱0</p>
                                         </div>
                                         <div>
                                             <span>Expenses</span>
-                                            <p class="h3 text-danger me-5" id="expenses">$300</p>
+                                            <p class="h3 text-danger me-5" id="expenses">₱300</p>
                                         </div>
                                         <div>
                                             <span>Earnings</span>
-                                            <p class="h3 text-dark me-5" id="earnings">$0</p>
+                                            <p class="h3 text-dark me-5" id="earnings">₱0</p>
                                         </div>
 
 
@@ -262,10 +262,10 @@
                                     let earnings = totalSales - expenses;
 
                                     // Format numbers properly
-                                    document.getElementById("totalSales").textContent = `$${totalSales.toFixed(2)}`;
-                                    document.getElementById("receipts").textContent = `$${totalSales.toFixed(2)}`;
-                                    document.getElementById("expenses").textContent = `$${expenses.toFixed(2)}`;
-                                    document.getElementById("earnings").textContent = `$${earnings.toFixed(2)}`;
+                                    document.getElementById("totalSales").textContent = `₱${totalSales.toFixed(2)}`;
+                                    document.getElementById("receipts").textContent = `₱${totalSales.toFixed(2)}`;
+                                    document.getElementById("expenses").textContent = `₱${expenses.toFixed(2)}`;
+                                    document.getElementById("earnings").textContent = `₱${earnings.toFixed(2)}`;
                                 })
                                 .catch(error => console.error('Failed to load sales data:', error));
                         }
@@ -304,28 +304,28 @@
                                                 <p class="mb-2 text-truncate"><i
                                                         class="fas fa-circle text-primary me-1"></i> Total Invoiced
                                                     Amount</p>
-                                                <h5 id="totalInvoiced">$0</h5>
+                                                <h5 id="totalInvoiced">₱0</h5>
                                             </div>
                                         </div>
                                         <div class="col-3">
                                             <div class="mt-4">
                                                 <p class="mb-2 text-truncate"><i
                                                         class="fas fa-circle text-success me-1"></i> Paid</p>
-                                                <h5 id="paidAmount">$0</h5>
+                                                <h5 id="paidAmount">₱0</h5>
                                             </div>
                                         </div>
                                         <div class="col-3">
                                             <div class="mt-4">
                                                 <p class="mb-2 text-truncate"><i
                                                         class="fas fa-circle text-warning me-1"></i> Unpaid</p>
-                                                <h5 id="unpaidAmount">$0</h5>
+                                                <h5 id="unpaidAmount">₱0</h5>
                                             </div>
                                         </div>
                                         <div class="col-3">
                                             <div class="mt-4">
                                                 <p class="mb-2 text-truncate"><i
                                                         class="fas fa-circle text-danger me-1"></i> Overdue</p>
-                                                <h5 id="overdueAmount">$0</h5>
+                                                <h5 id="overdueAmount">₱0</h5>
                                             </div>
                                         </div>
                                     </div>
@@ -350,10 +350,10 @@
                                                         let unpaid = analytics.unpaidInvoices || 0;
                                                         let overdue = analytics.overdueInvoices || 0;
 
-                                                        $("#totalInvoiced").text(`$${totalInvoiced.toLocaleString()}`);
-                                                        $("#paidAmount").text(`$${paid.toLocaleString()}`);
-                                                        $("#unpaidAmount").text(`$${unpaid.toLocaleString()}`);
-                                                        $("#overdueAmount").text(`$${overdue.toLocaleString()}`);
+                                                        $("#totalInvoiced").text(`₱${totalInvoiced.toLocaleString()}`);
+                                                        $("#paidAmount").text(`₱${paid.toLocaleString()}`);
+                                                        $("#unpaidAmount").text(`₱${unpaid.toLocaleString()}`);
+                                                        $("#overdueAmount").text(`₱${overdue.toLocaleString()}`);
                                                     },
                                                     error: function(xhr, status, error) {
                                                         console.error("Error fetching invoice analytics:", error);
@@ -447,8 +447,8 @@
                                                                 <i class="fas fa-ellipsis-h"></i>
                                                             </a>
                                                             <div class="dropdown-menu dropdown-menu-right">
-                                                                <a class="dropdown-item" href="#"><i class="far fa-eye me-2"></i>View</a>
-                                                                <a class="dropdown-item" href="#"><i class="far fa-trash-alt me-2"></i>Delete</a>
+                                                                <a class="dropdown-item" href="{{ route('upcoming.users') }}"><i class="far fa-eye me-2"></i>View</a>
+
                                                             </div>
                                                         </div>
                                                     </td>

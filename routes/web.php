@@ -13,6 +13,9 @@ use App\Http\Controllers\DocumentController;
 use App\Http\Middleware\RedirectIfAuthenticatedFor2FA;
 use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\BudgetReportController;
+use App\Http\Controllers\LogisticReportController;
+use App\Http\Controllers\ProcurementController;
 
 Route::get('/dashboard', [DashboardController::class, 'getDashboard'])->name('dashboard')->middleware('admin');
 
@@ -96,10 +99,21 @@ Route::delete('/notifications/clear', [NotificationController::class, 'clear'])-
 Route::get('/invoices', [InvoiceController::class, 'getInvoices'])->name('reports.invoices')->middleware('admin');
 Route::get('/admin/invoices/analyze', [InvoiceController::class, 'analyzeInvoices'])
     ->name('admin.invoices.analyze');
+Route::get('/admin/invoices/{id}', [InvoiceController::class, 'showInvoice'])->name('invoices.show');
+
+
 Route::put('/vendor/{id}/update-status/{status}', [VendorController::class, 'updateVendorStatus']);
 
 
 Route::get('/user/{id}/activity-logs', [UserController::class, 'getUserActivityLogs']);
+
+
+
+
+Route::get('/budgets', [BudgetReportController::class, 'index'])->name('budgets.index');
+Route::get('/logistics', [LogisticReportController::class, 'index'])->name('logistics.index');
+Route::get('/approvals/procurement', [ProcurementController::class, 'index'])->name('approvals.procurement');
+
 
 
 //FOR DASHBOARD

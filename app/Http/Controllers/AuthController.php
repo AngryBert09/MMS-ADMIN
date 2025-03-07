@@ -10,10 +10,13 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
 use App\Mail\TwoFactorCodeMail;
+use App\Traits\ActivityLogger;
 use Illuminate\Support\Facades\Mail;
 
 class AuthController extends Controller
 {
+    use ActivityLogger; // Include the Activity Logger Trait
+
     /**
      * Show the login form.
      */
@@ -25,9 +28,6 @@ class AuthController extends Controller
     /**
      * Handle login request.
      */
-
-
-
     public function login(Request $request)
     {
         $request->validate([
@@ -60,7 +60,7 @@ class AuthController extends Controller
         // Generate a 6-digit OTP code
         $otp = rand(100000, 999999);
 
-        // Save OTP in the session (or database)
+        // Save OTP in the session
         Session::put('2fa:user_id', $user->id);
         Session::put('2fa:otp', $otp);
         Session::put('2fa:email', $user->email);
@@ -71,22 +71,30 @@ class AuthController extends Controller
 
         Log::info('2FA OTP sent', ['email' => $user->email, 'otp' => $otp]);
 
+        // Store activity
+        $this->storeActivity("2FA OTP sent to {$user->email} for login.");
+
         // Redirect to 2FA verification page
         return redirect()->route('auth.2fa.verify')->with('success', 'A verification code has been sent to your email.');
     }
-
 
     /**
      * Handle logout.
      */
     public function logout()
     {
-        Auth::logout();
+        // Store logout activity
+        $this->storeActivity("User " . Auth::user()->email . " logged out.");
 
+        Auth::logout();
         Cache::flush(); // Clears all cache
+
         return redirect()->route('auth.login')->with('success', 'Logged out successfully');
     }
 
+    /**
+     * Handle 2FA verification.
+     */
     public function verify2FA(Request $request)
     {
         try {
@@ -107,6 +115,9 @@ class AuthController extends Controller
                 // Log the user in
                 auth()->loginUsingId($userId);
 
+                // Store activity
+                $this->storeActivity("User ID {$userId} successfully verified 2FA and logged in.");
+
                 return response()->json(['success' => true, 'message' => 'Verification successful']);
             }
 
@@ -117,18 +128,23 @@ class AuthController extends Controller
         }
     }
 
+    /**
+     * Resend 2FA OTP.
+     */
     public function resend2FA(Request $request)
     {
         if (!session()->has('2fa:user_id')) {
             return response()->json(['success' => false, 'message' => 'Unauthorized access.'], 403);
         }
 
-        // Here, regenerate OTP and send it via email
+        // Regenerate OTP and send it via email
         $newOtp = rand(100000, 999999);
         session(['2fa:otp' => $newOtp]);
 
-
         Mail::to(session('2fa:email'))->send(new TwoFactorCodeMail($newOtp));
+
+        // Store activity
+        $this->storeActivity("New 2FA OTP sent to " . session('2fa:email'));
 
         return response()->json(['success' => true, 'message' => 'A new code has been sent to your email.']);
     }

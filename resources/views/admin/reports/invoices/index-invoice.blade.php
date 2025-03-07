@@ -55,8 +55,6 @@
                         </div>
                     </div>
                 </div>
-
-
                 <div class="row">
                     <div class="col-xl-3 col-sm-6 col-12">
                         <div class="card inovices-card">
@@ -67,7 +65,7 @@
                                     </span>
                                     <div class="inovices-dash-count">
                                         <div class="inovices-amount">
-                                            ${{ number_format(collect($invoices)->sum('totalAmount'), 2) }}</div>
+                                            ₱{{ number_format(collect($invoices)->sum('totalAmount'), 2) }}</div>
                                     </div>
                                 </div>
                                 <p class="inovices-all">All Invoices <span>{{ count($invoices) }}</span></p>
@@ -83,7 +81,7 @@
                                     </span>
                                     <div class="inovices-dash-count">
                                         <div class="inovices-amount">
-                                            ${{ number_format(collect($invoices)->where('status', 'paid')->sum('totalAmount'), 2) }}
+                                            ₱{{ number_format(collect($invoices)->where('status', 'paid')->sum('totalAmount'), 2) }}
                                         </div>
                                     </div>
                                 </div>
@@ -102,7 +100,7 @@
                                     </span>
                                     <div class="inovices-dash-count">
                                         <div class="inovices-amount">
-                                            ${{ number_format(collect($invoices)->where('status', 'unpaid')->sum('totalAmount'), 2) }}
+                                            ₱{{ number_format(collect($invoices)->where('status', 'unpaid')->sum('totalAmount'), 2) }}
                                         </div>
                                     </div>
                                 </div>
@@ -121,7 +119,7 @@
                                     </span>
                                     <div class="inovices-dash-count">
                                         <div class="inovices-amount">
-                                            ${{ number_format(collect($invoices)->where('status', 'cancelled')->sum('totalAmount'), 2) }}
+                                            ₱{{ number_format(collect($invoices)->where('status', 'cancelled')->sum('totalAmount'), 2) }}
                                         </div>
                                     </div>
                                 </div>
@@ -171,7 +169,7 @@
                                                         GREATWALL ARTS
                                                     </td>
                                                     <td class="text-primary">
-                                                        ${{ number_format($invoice['totalAmount'], 2) }}</td>
+                                                        ₱{{ number_format($invoice['totalAmount'], 2) }}</td>
                                                     <td>{{ \Carbon\Carbon::parse($invoice['dueDate'])->format('d M Y') }}
                                                     </td>
                                                     <td>
@@ -191,25 +189,8 @@
                                                             </a>
                                                             <div class="dropdown-menu dropdown-menu-end">
                                                                 <a class="dropdown-item"
-                                                                    href="{{ url('edit-invoice/' . $invoice['invoiceId']) }}">
-                                                                    <i class="far fa-edit me-2"></i>Edit
-                                                                </a>
-                                                                <a class="dropdown-item"
-                                                                    href="{{ url('view-invoice/' . $invoice['invoiceId']) }}">
+                                                                    href="{{ route('invoices.show', $invoice['invoiceId']) }}">
                                                                     <i class="far fa-eye me-2"></i>View
-                                                                </a>
-                                                                <a class="dropdown-item" href="javascript:void(0);">
-                                                                    <i class="far fa-trash-alt me-2"></i>Delete
-                                                                </a>
-                                                                <a class="dropdown-item" href="javascript:void(0);">
-                                                                    <i class="far fa-check-circle me-2"></i>Mark as
-                                                                    sent
-                                                                </a>
-                                                                <a class="dropdown-item" href="javascript:void(0);">
-                                                                    <i class="far fa-paper-plane me-2"></i>Send Invoice
-                                                                </a>
-                                                                <a class="dropdown-item" href="javascript:void(0);">
-                                                                    <i class="far fa-copy me-2"></i>Clone Invoice
                                                                 </a>
                                                             </div>
                                                         </div>
@@ -231,8 +212,7 @@
             </div>
         </div>
         <!-- Invoice Report Modal -->
-        <div class="modal fade" id="reportModal" tabindex="-1" aria-labelledby="reportModalLabel"
-            aria-hidden="true">
+        <div class="modal fade" id="reportModal" tabindex="-1" aria-labelledby="reportModalLabel" aria-hidden="true">
             <div class="modal-dialog modal-xl"> <!-- Enlarged modal -->
                 <div class="modal-content">
                     <div class="modal-header">

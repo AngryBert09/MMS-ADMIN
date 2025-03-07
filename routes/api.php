@@ -5,6 +5,8 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\APIs\ApiUserController;
 use App\Http\Controllers\SalesReportController;
+use App\Http\Controllers\BudgetReportController;
+use App\Http\Controllers\LogisticReportController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -24,7 +26,10 @@ Route::get('/users', [ApiUserController::class, 'index']);
 Route::get('/users/{user}', [ApiUserController::class, 'show']);
 Route::put('/users/{user}', [ApiUserController::class, 'update']);
 
-Route::get('/generate-sales-report', [SalesReportController::class, 'generateReport']);
+Route::get('/generate-sales-report', [SalesReportController::class, 'analyzeSales']);
+Route::get('/analyze-budgets', [BudgetReportController::class, 'analyzeBudgets']);
+Route::get('/analyze-logistics', [LogisticReportController::class, 'analyzeLogistics']);
+
 
 // Authentication route
 Route::post('/auth', [ApiUserController::class, 'authenticate']);

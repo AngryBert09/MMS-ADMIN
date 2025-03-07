@@ -32,8 +32,8 @@ class HRController extends Controller
         Log::info("Attempting to create HR account for employee ID: {$employeeId}");
 
         if (!$employeeId) {
-            Log::error("Employee not found for ID: {$employeeId}");
-            return redirect()->back()->with('error', 'Employee not found.');
+            Log::error("Employee ID is missing.");
+            return redirect()->back()->with('error', 'Employee ID is required.');
         }
 
         $apiKey = env('HR1_API_KEY');
@@ -54,29 +54,34 @@ class HRController extends Controller
 
         $employee = $response->json();
 
+        if (empty($employee['email'])) {
+            Log::error("Email is missing for employee ID: {$employeeId}");
+            return redirect()->back()->with('error', 'Employee email is required.');
+        }
+
         $fullName = trim(
             ($employee['first_name'] ?? '') . ' ' .
                 ($employee['middle_name'] ?? '') . ' ' .
                 ($employee['last_name'] ?? '')
         );
+
         Log::debug("Concatenated full name: {$fullName}");
 
-        $uniqueNumber = mt_rand(1000, 9999);
-        $lastName = strtolower($employee['last_name'] ?? 'user');
-        $cleanLastName = strtolower(str_replace(' ', '', $lastName));
+        $password = '#' . strtolower(str_replace(' ', '', ($employee['last_name'] ?? 'user'))) . 'GWA';
 
-        $email = $cleanLastName . $uniqueNumber . '@gwamerch.com';
-        $password = '#' . $cleanLastName . 'GWA';
-
-
-
-
-        Log::debug("Concatenated password: {$password}");
+        Log::debug("Generated password: {$password}");
 
         try {
+            // Check if user already exists
+            $existingUser = User::where('email', $employee['email'])->first();
+            if ($existingUser) {
+                Log::warning("User with email {$employee['email']} already exists.");
+                return redirect()->back()->with('warning', 'User already exists.');
+            }
+
             $user = new User();
             $user->name = $fullName;
-            $user->email = $email;
+            $user->email = $employee['email'];
             $user->phone_number = $employee['contact'] ?? null;
             $user->address = $employee['address'] ?? null;
             $user->role = 'Employee';
@@ -89,13 +94,14 @@ class HRController extends Controller
             // Remove only the newly created user from the cache
             $this->removeUserFromCache($employee['email']);
 
-            Log::info("HR account created successfully for employee ID: {$employeeId}, user ID: {$user->id}, email: {$email}");
+            Log::info("HR account created successfully for employee ID: {$employeeId}, user ID: {$user->id}, email: {$employee['email']}");
             return redirect()->back()->with('success', 'HR account created successfully.');
         } catch (\Exception $e) {
             Log::error("Error creating HR account for employee ID: {$employeeId}. Error: " . $e->getMessage());
             return redirect()->back()->with('error', 'Failed to create HR account.');
         }
     }
+
 
     // Function to fetch HR employee applications
     private function fetchHrApplications()
