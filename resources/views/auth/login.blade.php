@@ -100,8 +100,10 @@
                                         <span class="fas fa-eye toggle-password" onclick="togglePassword()"></span>
                                     </div>
                                 </div>
+
+                                <!-- Google reCAPTCHA -->
                                 <div class="form-group">
-                                    <div class="row">
+                                    <div class="g-recaptcha" data-sitekey="{{ env('GOOGLE_RECAPTCHA_SITE_KEY') }}">
                                     </div>
                                 </div>
 
@@ -124,6 +126,9 @@
                 </div>
             </div>
         </div>
+
+        <!-- Load reCAPTCHA Script -->
+        <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 
     </div>
 
