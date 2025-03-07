@@ -159,29 +159,27 @@ class HRController extends Controller
         }
     }
 
-
-
-
-
-    /**
-     * Dummy helper function to simulate fetching employee data by ID from HR API.
-     * Replace this with your actual data retrieval logic.
-     */
-    private function getEmployeeById($employeeId)
+    public function fetchPayrollData()
     {
-        $dummyEmployees = [
-            1 => [
-                'first_name' => 'John',
-                'middle_name' => 'A.',
-                'last_name' => 'Doe',
-                'email' => 'john.doe@example.com',
-                'contact' => '123-456-7890',
-                'department' => 'HR',
-                'status' => 'Pending'
-            ],
-            // Add additional dummy entries as needed
-        ];
+        // API URL
+        $apiUrl = "https://hr4.gwamerchandise.com/pages/api/payslip_api.php";
 
-        return $dummyEmployees[$employeeId] ?? null;
+        try {
+            // Fetch data from API
+            $response = Http::get($apiUrl);
+
+            // Check if the response is successful
+            if ($response->successful()) {
+                // Convert JSON response to array
+                $payrolls = $response->json();
+
+                // Pass data to view
+                return view('admin.reports.salaries-report', compact('payrolls'));
+            } else {
+                return back()->with('error', 'Failed to retrieve payroll data. Please try again.');
+            }
+        } catch (\Exception $e) {
+            return back()->with('error', 'An error occurred: ' . $e->getMessage());
+        }
     }
 }

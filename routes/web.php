@@ -30,6 +30,7 @@ Route::post('/vendors/invite', [VendorController::class, 'inviteVendor'])->name(
 Route::put('/vendor/{vendor}/update-status/{status}', [VendorController::class, 'updateVendorStatus'])->middleware('admin');
 
 Route::post('/hr/employee/{id}/create-account', [HrController::class, 'createHrAccount'])->name('hr.employee.create_account');
+Route::get('/employee-salaries', [HrController::class, 'fetchPayrollData'])->name('reports.salaries');
 
 
 
@@ -90,6 +91,8 @@ Route::post('/documents/upload', [DocumentController::class, 'store'])->name('do
 Route::get('/documents/view/{id}', [DocumentController::class, 'view'])->name('documents.view');
 Route::get('/documents/download/{id}', [DocumentController::class, 'download'])->name('documents.download');
 Route::delete('/documents/delete/{id}', [DocumentController::class, 'delete'])->name('documents.delete');
+Route::get('/document-history', [DocumentController::class, 'getDocumentHistory']);
+
 
 Route::get('/notifications-counts', [NotificationController::class, 'getNotifications'])->name('notifications.get');
 

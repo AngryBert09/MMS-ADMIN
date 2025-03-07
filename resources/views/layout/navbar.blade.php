@@ -52,8 +52,9 @@
         <li class="nav-item dropdown has-arrow main-drop">
             <a href="#" class="dropdown-toggle nav-link" data-bs-toggle="dropdown">
                 <span class="user-img">
-                    <img src="{{ Auth::user()->profile_pic ? asset('storage/' . Auth::user()->profile_pic) : asset('img/profiles/default.jpg') }}"
+                    <img src="{{ Auth::user()->profile_pic ? Storage::url(Auth::user()->profile_pic) : asset('img/profiles/default.jpg') }}"
                         alt="">
+
                     <span class="status online"></span>
                 </span>
 

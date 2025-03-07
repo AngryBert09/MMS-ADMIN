@@ -29,8 +29,12 @@
                                 <i class="fas fa-plus"></i> Upload File
                             </a>
 
-
+                            <a href="javascript:void(0);" class="btn btn-primary" data-bs-toggle="modal"
+                                data-bs-target="#documentHistoryModal">
+                                <i class="fas fa-history"></i> Document History
+                            </a>
                         </div>
+
                     </div>
                 </div>
 
@@ -57,9 +61,9 @@
                                                 <tr>
                                                     <td><a href="javascript:void(0);">#{{ $doc->id }}</a></td>
                                                     <td>{{ $doc->title }}</td>
-                                                    <td>{{ $doc->uploaded_by ?? 'Unknown' }}</td>
+                                                    <td>{{ $doc->uploaded_by ?? 'Admin' }}</td>
                                                     <td>{{ number_format($doc->file_size / 1024, 2) }} KB</td>
-                                                    <td>{{ $doc->department ?? 'Unknown' }}</td>
+                                                    <td>{{ $doc->department ?? 'Admin' }}</td>
                                                     <td>{{ strtoupper($doc->file_type) }}</td>
                                                     <td class="text-end">
                                                         <!-- View Button -->
@@ -166,6 +170,74 @@
         </div>
     </div>
 
+    <!-- DOCUMENT HISTORY MODAL -->
+    <div class="modal fade" id="documentHistoryModal" tabindex="-1" aria-labelledby="documentHistoryLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="documentHistoryLabel">Document History</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title">Document Activity Logs</h5>
+                        </div>
+                        <div class="card-body card-body-height">
+                            <ul class="activity-feed" id="documentHistoryFeed">
+                                <li class="feed-item">
+                                    <span class="feed-text text-muted">Loading history...</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            document.getElementById("documentHistoryModal").addEventListener("show.bs.modal", function() {
+                fetch("/document-history") // Ensure this matches your route
+                    .then(response => response.json())
+                    .then(data => {
+                        let activityFeed = document.getElementById("documentHistoryFeed");
+                        activityFeed.innerHTML = ""; // Clear previous data
+
+                        if (data.length === 0) {
+                            activityFeed.innerHTML = `
+                        <li class="feed-item">
+                            <span class="feed-text text-muted">No document history found.</span>
+                        </li>`;
+                            return;
+                        }
+
+                        data.forEach(item => {
+                            let activityItem = `
+                        <li class="feed-item">
+                            <div class="feed-date">
+                                ${new Date(item.timestamp).toLocaleDateString('en-US', { month: 'short', day: '2-digit' })}
+                            </div>
+                            <span class="feed-text">
+                                <strong>${item.user}</strong> ${item.action} <strong>${item.file_name}</strong>
+                            </span>
+                        </li>`;
+                            activityFeed.innerHTML += activityItem;
+                        });
+                    })
+                    .catch(error => {
+                        console.error("Error loading document history:", error);
+                        document.getElementById("documentHistoryFeed").innerHTML = `
+                    <li class="feed-item">
+                        <span class="feed-text text-danger">Failed to load document history.</span>
+                    </li>`;
+                    });
+            });
+        });
+    </script>
 
 
     @include('layout.footerjs')

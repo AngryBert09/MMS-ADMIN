@@ -18,7 +18,6 @@ class DocumentController extends Controller
         return view('admin.documents', compact('documents')); // Pass data to the view
     }
 
-
     /**
      * Handle file upload and store details in the database.
      */
@@ -37,20 +36,20 @@ class DocumentController extends Controller
             'file_path' => $filePath,
             'file_type' => $file->getClientOriginalExtension(),
             'file_size' => $file->getSize(),
-            'uploaded_by' => auth()->user()->name, // Store user ID instead of name
+            'uploaded_by' => auth()->user()->id, // Store user ID instead of name
             'created_at' => now(),
             'updated_at' => now(),
         ]);
 
+        // Log upload action
+        $this->logDocumentHistory(auth()->id(), $request->title, 'uploaded');
+
         return redirect()->back()->with('success', 'Document uploaded successfully!');
     }
-
-
 
     /**
      * Download the specified document.
      */
-
     public function download($id)
     {
         $document = DB::table('documents')->where('id', $id)->first();
@@ -65,6 +64,9 @@ class DocumentController extends Controller
         if (!Storage::disk('public')->exists($filePath)) {
             return redirect()->back()->with('error', 'File not found on the server.');
         }
+
+        // Log download action
+        $this->logDocumentHistory(auth()->id(), $document->title, 'downloaded');
 
         return Storage::disk('public')->download($filePath, $document->title . '.' . $document->file_type);
     }
@@ -85,9 +87,15 @@ class DocumentController extends Controller
         // Remove record from the database
         DB::table('documents')->where('id', $id)->delete();
 
+        // Log delete action
+        $this->logDocumentHistory(auth()->id(), $document->title, 'deleted');
+
         return redirect()->back()->with('success', 'Document deleted successfully.');
     }
 
+    /**
+     * View a document.
+     */
     public function view($id)
     {
         // Fetch the document using the DB facade
@@ -103,12 +111,59 @@ class DocumentController extends Controller
 
         // Check if the file exists
         if (file_exists($filePath)) {
+            $this->logDocumentHistory(auth()->id(), $document->title, 'viewed');
+
             return response()->file($filePath, [
                 'Content-Type' => mime_content_type($filePath),
+
             ]);
         }
 
         // If the file does not exist, return a 404 error
         abort(404, 'File not found.');
+    }
+
+    /**
+     * Retrieve document history.
+     */
+    public function getDocumentHistory()
+    {
+        $history = DB::table('document_history')
+            ->join('users', 'document_history.user_id', '=', 'users.id')
+            ->select('users.name as user', 'document_history.action', 'document_history.file_name', 'document_history.timestamp')
+            ->orderBy('document_history.timestamp', 'desc')
+            ->get();
+
+        return response()->json($history);
+    }
+
+
+    /**
+     * Log document actions (upload, delete, download).
+     */
+    private function logDocumentHistory($userId, $fileName, $action)
+    {
+        $user = DB::table('users')->where('id', $userId)->first();
+
+        if (!$user) {
+            return;
+        }
+
+        // Friendly message based on action
+        $actionMessages = [
+            'uploaded' => "{$user->name} uploaded a new document: <strong>{$fileName}</strong>.",
+            'deleted' => "{$user->name} deleted the document: <strong>{$fileName}</strong>.",
+            'downloaded' => "{$user->name} downloaded the document: <strong>{$fileName}</strong>.",
+            'viewed' => "{$user->name} viewed the document: <strong>{$fileName}</strong>."
+        ];
+
+        $message = $actionMessages[$action] ?? "{$user->name} performed an action on <strong>{$fileName}</strong>.";
+
+        DB::table('document_history')->insert([
+            'user_id' => $userId,
+            'file_name' => $fileName,
+            'action' => $message, // Store the friendly message
+            'timestamp' => now(),
+        ]);
     }
 }

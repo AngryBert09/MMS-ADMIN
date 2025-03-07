@@ -7,6 +7,7 @@
                     <a href="{{ route('dashboard') }}"><i data-feather="home"></i> <span>Dashboard</span></a>
                 </li>
 
+
                 <li class="submenu">
                     <a href="#"><i data-feather="user"></i> <span> Users</span> <span
                             class="menu-arrow"></span></a>
@@ -48,7 +49,10 @@
 
                 </li>
 
-
+                <li>
+                    <a href="{{ route('reports.salaries') }}"><i data-feather="users"></i> <span>Employee
+                            Salaries</span></a>
+                </li>
 
                 <li>
                     <a href="{{ route('profile.edit') }}"><i data-feather="settings"></i> <span>Settings</span></a>
