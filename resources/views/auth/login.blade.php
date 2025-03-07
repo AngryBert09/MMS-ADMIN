@@ -102,10 +102,14 @@
                                 </div>
 
                                 <!-- Google reCAPTCHA -->
-                                <div class="form-group">
-                                    <div class="g-recaptcha" data-sitekey="{{ env('GOOGLE_RECAPTCHA_SITE_KEY') }}">
+                                <div class="form-group text-center">
+                                    <label class="form-control-label">Verify You Are Human</label>
+                                    <div class="d-flex justify-content-center">
+                                        <div class="g-recaptcha" data-sitekey="{{ env('GOOGLE_RECAPTCHA_SITE_KEY') }}">
+                                        </div>
                                     </div>
                                 </div>
+
 
                                 <!-- Login Button -->
                                 <button class="btn btn-lg btn-block btn-warning w-100 rounded-3"
