@@ -51,12 +51,12 @@
                                                 <th>Contact</th>
                                                 <th>Pay Period</th>
                                                 <th>Payment Date</th>
-                                                <th>Base Salary ($)</th>
-                                                <th>Overtime ($)</th>
-                                                <th>Bonuses ($)</th>
-                                                <th>Gross Earnings ($)</th>
-                                                <th>Total Deductions ($)</th>
-                                                <th>Net Pay ($)</th>
+                                                <th>Base Salary (₱)</th>
+                                                <th>Overtime (₱)</th>
+                                                <th>Bonuses (₱)</th>
+                                                <th>Gross Earnings (₱)</th>
+                                                <th>Total Deductions (₱)</th>
+                                                <th>Net Pay (₱)</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -71,14 +71,14 @@
                                                     <td>{{ ucfirst($payroll['pay_period']) }}</td>
                                                     <td>{{ \Carbon\Carbon::parse($payroll['payment_date'])->format('M d, Y') }}
                                                     </td>
-                                                    <td>${{ number_format($payroll['base_salary'], 2) }}</td>
-                                                    <td>${{ number_format($payroll['overtime'], 2) }}</td>
-                                                    <td>${{ number_format($payroll['bonuses'], 2) }}</td>
-                                                    <td>${{ number_format($payroll['gross_earnings'], 2) }}</td>
-                                                    <td>${{ number_format($payroll['total_deductions'], 2) }}</td>
+                                                    <td>₱{{ number_format($payroll['base_salary'], 2) }}</td>
+                                                    <td>₱{{ number_format($payroll['overtime'], 2) }}</td>
+                                                    <td>₱{{ number_format($payroll['bonuses'], 2) }}</td>
+                                                    <td>₱{{ number_format($payroll['gross_earnings'], 2) }}</td>
+                                                    <td>₱{{ number_format($payroll['total_deductions'], 2) }}</td>
                                                     <td>
                                                         <strong class="text-success">
-                                                            ${{ number_format($payroll['net_pay'], 2) }}
+                                                            ₱{{ number_format($payroll['net_pay'], 2) }}
                                                         </strong>
                                                     </td>
                                                 </tr>
