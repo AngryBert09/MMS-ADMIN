@@ -61,7 +61,7 @@
                                                     <td>{{ $budget['date_of_request'] }}</td>
                                                     <td>{{ $budget['requested_by'] }}</td>
                                                     <td>{{ $budget['department'] }}</td>
-                                                    <td>${{ number_format(array_sum(array_column($budget['budget_details'], 'amount')), 2) }}
+                                                    <td>₱{{ number_format(array_sum(array_column($budget['budget_details'], 'amount')), 2) }}
                                                     </td>
                                                     <td>
                                                         <span

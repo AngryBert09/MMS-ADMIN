@@ -66,9 +66,9 @@
                                                                 View Products
                                                             </button>
                                                         </td>
-                                                        <td>${{ number_format($report['invoice']['total_amount'], 2) }}
+                                                        <td>₱{{ number_format($report['invoice']['total_amount'], 2) }}
                                                         </td>
-                                                        <td>${{ number_format($report['invoice']['tax_amount'], 2) }}
+                                                        <td>₱{{ number_format($report['invoice']['tax_amount'], 2) }}
                                                             ({{ $report['invoice']['tax_rate'] }}%)
                                                         </td>
                                                         <td>
