@@ -84,7 +84,7 @@
                                                             class="btn btn-sm btn-white text-success me-2">
                                                             <i class="far fa-edit me-1"></i> Edit
                                                         </a>
-                                                        @include('admin.users.delete-users')
+                                                        {{-- @include('admin.users.delete-users') --}}
                                                     </td>
                                                 </tr>
                                             @endforeach
