@@ -21,62 +21,92 @@ class DashboardController extends Controller
     public function getSalesData()
     {
         try {
-            // Fetch data grouped by month
-            $salesData = DB::table('sales')
-                ->selectRaw('MONTH(order_date) as month,
-                         SUM(CASE WHEN status = "Completed" THEN total_amount ELSE 0 END) as Completed,
-                         SUM(CASE WHEN status = "Pending" THEN total_amount ELSE 0 END) as Pending')
-                ->groupBy('month')
-                ->orderBy('month')
-                ->get();
+            // Define the API URL
+            $apiUrl = "https://finance.gwamerchandise.com/api/sales-reports";
 
-            // Debugging: Log raw database response
-            Log::info('Raw Sales Data:', ['data' => $salesData]);
+            // Fetch data from the API
+            $response = Http::get($apiUrl);
 
-            // Format data for chart
+            if (!$response->successful()) {
+                // Log error if API request fails
+                Log::error('Failed to fetch sales data from API');
+                return response()->json(['error' => 'Failed to fetch sales data from API'], 500);
+            }
+
+            // Parse API response data
+            $salesData = $response->json();
+
+            // Initialize arrays for chart data
             $categories = [];
             $receivedData = [];
             $pendingData = [];
 
-            $months = [
-                1 => "Jan",
-                2 => "Feb",
-                3 => "Mar",
-                4 => "Apr",
-                5 => "May",
-                6 => "Jun",
-                7 => "Jul",
-                8 => "Aug",
-                9 => "Sep",
-                10 => "Oct",
-                11 => "Nov",
-                12 => "Dec"
-            ];
+            // Initialize variables for total sales and total earnings
+            $totalSales = 0;
+            $totalEarnings = 0;
 
-            foreach ($salesData as $data) {
-                $monthName = $months[$data->month] ?? 'Unknown';
-                $categories[] = $monthName;
-                $receivedData[] = $data->Completed;
-                $pendingData[] = $data->Pending;
+            // Check if the API returned valid sales data
+            if (!empty($salesData['sales invoices'])) {
+                $months = [
+                    1 => "Jan",
+                    2 => "Feb",
+                    3 => "Mar",
+                    4 => "Apr",
+                    5 => "May",
+                    6 => "Jun",
+                    7 => "Jul",
+                    8 => "Aug",
+                    9 => "Sep",
+                    10 => "Oct",
+                    11 => "Nov",
+                    12 => "Dec"
+                ];
 
-                // Debugging: Log each formatted entry
-                Log::info("Processing Month: $monthName", [
-                    'Completed' => $data->Completed,
-                    'Pending' => $data->Pending
-                ]);
+                // Loop through the sales data to extract total_sum and earnings
+                foreach ($salesData['sales invoices'] as $data) {
+                    // Extract timestamp and calculate month
+                    $timestamp = $data['timestamp'];
+                    $month = date('n', strtotime($timestamp));  // Extract month number from timestamp
+                    $totalAmount = $data['total_sum'] ?? 0;
+                    $earnings = $data['earnings'] ?? 0;
+
+                    // Add to total sales and earnings
+                    $totalSales += $totalAmount;
+                    $totalEarnings += $earnings;
+
+                    // Get month name
+                    $monthName = $months[$month] ?? 'Unknown';
+                    $categories[] = $monthName;
+                    $receivedData[] = $totalAmount;  // Use total_sum for received data
+                    $pendingData[] = $earnings;     // Use earnings for pending data
+
+                    // Debugging: Log each formatted entry
+                    Log::info("Processing Month: $monthName", [
+                        'Total Amount' => $totalAmount,
+                        'Earnings' => $earnings
+                    ]);
+                }
+            } else {
+                // Log warning if the API response does not contain sales data
+                Log::warning('No sales data returned from API');
             }
 
             // Debugging: Log final formatted data
             Log::info('Final Sales Chart Data:', [
                 'categories' => $categories,
                 'received' => $receivedData,
-                'pending' => $pendingData
+                'pending' => $pendingData,
+                'total_sales' => $totalSales,
+                'total_earnings' => $totalEarnings
             ]);
 
+            // Return data in response
             return response()->json([
                 'categories' => $categories,
                 'received' => $receivedData,
-                'pending' => $pendingData
+                'pending' => $pendingData,
+                'total_sales' => $totalSales,
+                'total_earnings' => $totalEarnings
             ]);
         } catch (\Exception $e) {
             // Log the error
@@ -87,6 +117,8 @@ class DashboardController extends Controller
             ], 500);
         }
     }
+
+
 
 
 

@@ -39,9 +39,7 @@
                     <div class="col-sm-12">
                         <div class="card card-table">
                             <div class="card-body">
-
                                 <div class="table-responsive">
-
                                     <table class="table table-center table-hover datatable">
                                         <thead class="thead-light">
                                             <tr>

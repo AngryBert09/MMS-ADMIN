@@ -54,12 +54,12 @@ $(document).ready(function () {
                     xaxis: {
                         categories: response.categories,
                     },
-                    yaxis: { title: { text: "$ (thousands)" } },
+                    yaxis: { title: { text: "₱ (thousands)" } },
                     fill: { opacity: 1 },
                     tooltip: {
                         y: {
                             formatter: function (val) {
-                                return "$ " + val + " thousands";
+                                return "₱ " + val + " thousands";
                             },
                         },
                     },

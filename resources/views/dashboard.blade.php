@@ -220,14 +220,7 @@
                                             <span>Total Sales</span>
                                             <p class="h3 text-primary me-5" id="totalSales">₱0</p>
                                         </div>
-                                        <div>
-                                            <span>Receipts</span>
-                                            <p class="h3 text-success me-5" id="receipts">₱0</p>
-                                        </div>
-                                        <div>
-                                            <span>Expenses</span>
-                                            <p class="h3 text-danger me-5" id="expenses">₱300</p>
-                                        </div>
+
                                         <div>
                                             <span>Earnings</span>
                                             <p class="h3 text-dark me-5" id="earnings">₱0</p>
@@ -255,21 +248,19 @@
                                         return;
                                     }
 
-                                    // Ensure the values are numbers before summing
-                                    let totalSales = data.received.map(Number).reduce((a, b) => a + b, 0);
-                                    let pendingSales = data.pending.map(Number).reduce((a, b) => a + b, 0);
-                                    let expenses = 300; // Replace with dynamic expenses if available
-                                    let earnings = totalSales - expenses;
+                                    // Extract and parse data from response
+                                    let totalSales = parseFloat(data.total_sales) || 0;
+                                    let totalEarnings = parseFloat(data.total_earnings) || 0;
 
-                                    // Format numbers properly
+                                    // Format and update DOM
                                     document.getElementById("totalSales").textContent = `₱${totalSales.toFixed(2)}`;
-                                    document.getElementById("receipts").textContent = `₱${totalSales.toFixed(2)}`;
-                                    document.getElementById("expenses").textContent = `₱${expenses.toFixed(2)}`;
-                                    document.getElementById("earnings").textContent = `₱${earnings.toFixed(2)}`;
+                                    document.getElementById("earnings").textContent = `₱${totalEarnings.toFixed(2)}`;
                                 })
                                 .catch(error => console.error('Failed to load sales data:', error));
                         }
                     </script>
+
+
 
                     <div class="col-xl-5 d-flex">
                         <div class="card flex-fill">
