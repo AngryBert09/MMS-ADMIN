@@ -40,6 +40,7 @@
                         <div class="card card-table">
                             <div class="card-body">
                                 <div class="table-responsive">
+
                                     <table class="table table-center table-hover datatable">
                                         <thead class="thead-light">
                                             <tr>
@@ -113,6 +114,13 @@
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body" style="max-height: 70vh; overflow-y: auto;"> <!-- Scrollable content -->
+                        <div class="mb-3">
+                            <label for="customPrompt" class="form-label">Enter a custom prompt for AI:</label>
+                            <textarea class="form-control" id="customPrompt" rows="3"
+                                placeholder="e.g., Give me a summary focused on cost-saving trends..."></textarea>
+                            <button class="btn btn-outline-primary mt-2" id="generateWithPrompt">Ask AI</button>
+                        </div>
+                        <hr />
                         <div id="budgetReportContent">
                             <p>Generating budget report...</p>
                         </div>
@@ -130,17 +138,17 @@
 
         <script>
             document.addEventListener("DOMContentLoaded", function() {
-                document.getElementById("generate_report").addEventListener("click", function() {
-                    let reportContent = document.getElementById("budgetReportContent");
-                    reportContent.innerHTML = "<p>Generating budget report...</p>";
+                const budgetModal = new bootstrap.Modal(document.getElementById("budgetReportModal"));
+                const reportContent = document.getElementById("budgetReportContent");
 
-                    let budgetModal = new bootstrap.Modal(document.getElementById("budgetReportModal"));
+                document.getElementById("generate_report").addEventListener("click", function() {
+                    reportContent.innerHTML = "<p>Generating budget report...</p>";
                     budgetModal.show();
 
-                    fetch('/api/analyze-budgets') // Updated API endpoint
+                    fetch('/api/analyze-budgets')
                         .then(response => response.json())
                         .then(data => {
-                            if (data.analysis) { // Updated key
+                            if (data.analysis) {
                                 reportContent.innerHTML =
                                     `<pre style="white-space: pre-wrap;">${data.analysis}</pre>`;
                             } else {
@@ -154,9 +162,47 @@
                         });
                 });
 
+                // Generate report with custom prompt
+                document.getElementById("generateWithPrompt").addEventListener("click", function() {
+                    const promptText = document.getElementById("customPrompt").value.trim();
+
+                    if (!promptText) {
+                        alert("Please enter a prompt before generating.");
+                        return;
+                    }
+
+                    reportContent.innerHTML = "<p>Generating report please wait...</p>";
+                    budgetModal.show();
+
+                    fetch('/api/analyze-budgets-with-prompt', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                prompt: promptText,
+                                existing_report: reportContent.innerText
+                            })
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.report) {
+                                reportContent.innerHTML =
+                                    `<pre style="white-space: pre-wrap;">${data.report}</pre>`;
+                            } else {
+                                reportContent.innerHTML =
+                                    `<p class="text-danger">Failed to generate report with prompt.</p>`;
+                            }
+                        })
+                        .catch(error => {
+                            reportContent.innerHTML = `<p class="text-danger">Error: ${error.message}</p>`;
+                        });
+                });
+
                 // Copy to clipboard
                 document.getElementById("copyReport").addEventListener("click", function() {
-                    let text = document.getElementById("budgetReportContent").innerText;
+                    let text = reportContent.innerText;
                     navigator.clipboard.writeText(text).then(() => {
                         alert("Report copied to clipboard!");
                     }).catch(err => {
@@ -170,7 +216,7 @@
                         jsPDF
                     } = window.jspdf;
                     let doc = new jsPDF();
-                    let text = document.getElementById("budgetReportContent").innerText;
+                    let text = reportContent.innerText;
                     let pageWidth = doc.internal.pageSize.getWidth();
 
                     doc.setFont("helvetica", "normal");
@@ -184,10 +230,11 @@
                         align: "left"
                     });
 
-                    doc.save("budget-report.pdf"); // Updated filename
+                    doc.save("budget-report.pdf");
                 });
             });
         </script>
+
 
 
 

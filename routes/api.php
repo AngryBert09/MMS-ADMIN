@@ -27,8 +27,11 @@ Route::get('/users/{user}', [ApiUserController::class, 'show']);
 Route::put('/users/{user}', [ApiUserController::class, 'update']);
 
 Route::get('/generate-sales-report', [SalesReportController::class, 'analyzeSales']);
+Route::post('/analyzeSalesWithPrompt', [SalesReportController::class, 'analyzeSalesWithPrompt']);
 Route::get('/analyze-budgets', [BudgetReportController::class, 'analyzeBudgets']);
+Route::post('/analyze-budgets-with-prompt', [BudgetReportController::class, 'analyzeBudgetsWithPrompt']);
 Route::get('/analyze-logistics', [LogisticReportController::class, 'analyzeLogistics']);
+Route::post('/analyze-logistics-with-prompt', [LogisticReportController::class, 'analyzeCustomLogistics']);
 
 
 // Authentication route

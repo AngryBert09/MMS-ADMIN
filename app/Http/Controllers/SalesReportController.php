@@ -7,6 +7,7 @@ use App\Services\GeminiSalesReportService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 
 class SalesReportController extends Controller
 {
@@ -31,71 +32,195 @@ class SalesReportController extends Controller
 
     public function analyzeSales()
     {
-        $cacheKey = 'sales_analysis';
-        $cacheTime = 60; // Cache for 60 minutes
+        Log::debug('Starting analyzeSales() function');
 
-        return Cache::remember($cacheKey, $cacheTime, function () {
-            // Fetch sales data from external API
-            $apiUrl = "https://finance.gwamerchandise.com/api/sales-reports";
+        // Fetch sales data from external API
+        $apiUrl = "https://finance.gwamerchandise.com/api/sales-reports";
+        Log::debug('Preparing to fetch sales data', ['api_url' => $apiUrl]);
 
-            try {
-                $response = Http::get($apiUrl);
+        try {
+            $startTime = microtime(true);
+            $response = Http::get($apiUrl);
+            $duration = round((microtime(true) - $startTime) * 1000, 2);
+            Log::debug('API response received', [
+                'status' => $response->status(),
+                'duration_ms' => $duration
+            ]);
 
-                if (!$response->successful()) {
-                    return response()->json(['report' => 'Failed to fetch sales data.'], 500);
+            if (!$response->successful()) {
+                Log::error('Failed to fetch sales data', [
+                    'status' => $response->status(),
+                    'body' => $response->body()
+                ]);
+                return response()->json(['report' => 'Failed to fetch sales data.'], 500);
+            }
+
+            $data = $response->json();
+            Log::debug('Sales data parsed', [
+                'sales_count' => count($data['sales invoices'] ?? []),
+                'data_sample' => array_slice($data['sales invoices'] ?? [], 0, 2)
+            ]);
+
+            $sales = $data['sales invoices'] ?? [];
+            if (empty($sales)) {
+                Log::warning('Empty sales data received');
+                return response()->json(['report' => 'No sales data available.'], 500);
+            }
+
+            // Summarize sales data
+            $totalSales = count($sales);
+            $totalRevenue = array_sum(array_column($sales, 'total_sum'));
+            $totalEarnings = array_sum(array_column($sales, 'earnings'));
+            $topProducts = [];
+
+            foreach ($sales as $sale) {
+                foreach ($sale['cart_items'] as $item) {
+                    $productName = $item['product_name'];
+                    $topProducts[$productName] = ($topProducts[$productName] ?? 0) + 1;
                 }
+            }
 
-                $data = $response->json();
-                $sales = $data['sales invoices'] ?? []; // Extract sales invoices
+            arsort($topProducts);
+            $topSellingProducts = array_slice($topProducts, 0, 5, true);
 
-                if (empty($sales)) {
-                    return response()->json(['report' => 'No sales data available.'], 500);
-                }
+            Log::debug('Sales data summarized', [
+                'total_sales' => $totalSales,
+                'total_revenue' => $totalRevenue,
+                'total_earnings' => $totalEarnings,
+                'top_products' => $topSellingProducts
+            ]);
 
-                // Summarize sales data
-                $totalSales = count($sales);
-                $totalRevenue = array_sum(array_column($sales, 'total_sum'));
-                $totalEarnings = array_sum(array_column($sales, 'earnings'));
-                $topProducts = [];
-
-                foreach ($sales as $sale) {
-                    foreach ($sale['cart_items'] as $item) {
-                        $productName = $item['product_name'];
-                        $topProducts[$productName] = ($topProducts[$productName] ?? 0) + 1;
-                    }
-                }
-
-                arsort($topProducts); // Sort by most sold items
-                $topSellingProducts = array_slice($topProducts, 0, 5, true);
-
-                // Prepare AI Prompt
-                $prompt = [
-                    "Generate a detailed and professional sales report in a structured business format without using bullet points, asterisks, numbered lists, or markdown-like formatting. The report should provide a well-written analysis of the sales period, summarizing total sales transactions, overall revenue, and key observations. Highlight the proportion of earnings relative to total revenue, identifying any patterns or trends in customer purchases. Discuss factors influencing sales trends, such as seasonal demand, pricing strategies, marketing efforts, and product popularity. Provide insights into sales performance, customer purchasing behaviors, and any anomalies or notable trends in revenue generation. Conclude with a summary of findings and recommendations for optimizing sales performance and revenue growth. The response should flow naturally in clear, structured paragraphs without section titles or symbols, resembling a well-crafted business document, and should be written as a single paragraph. Use the following sales data for analysis: " . json_encode([
+            // Prepare AI Prompt
+            $prompt = [
+                "Generate a professional sales analysis as a single, continuous narrative paragraph. " .
+                    "Do not use any section headers, bullet points, asterisks, or special formatting. " .
+                    "Present all insights in flowing business prose that naturally incorporates: " .
+                    "1) Key performance metrics " .
+                    "2) Product performance analysis " .
+                    "3) Revenue and profitability trends " .
+                    "4) Actionable business implications " .
+                    "Write in complete sentences that flow logically from one point to the next. " .
+                    "Here is the sales data to analyze: " .
+                    json_encode([
                         'totalSales' => $totalSales,
                         'totalRevenue' => $totalRevenue,
                         'totalEarnings' => $totalEarnings,
                         'topSellingProducts' => $topSellingProducts
                     ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)
-                ];
+            ];
 
-                // Call Gemini AI API
-                $geminiApiKey = env('GEMINI_API_KEY');
-                $client = new \GuzzleHttp\Client();
+            Log::debug('Preparing Gemini AI request', [
+                'prompt_length' => strlen(implode("\n", $prompt)),
+                'prompt_sample' => substr(implode("\n", $prompt), 0, 100) . '...'
+            ]);
 
-                $aiResponse = $client->post("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent", [
-                    'query' => ['key' => $geminiApiKey],
-                    'json' => [
-                        'contents' => [['parts' => [['text' => implode("\n", $prompt)]]]]
+            // Call Gemini AI API
+            $geminiApiKey = env('GEMINI_API_KEY');
+            $client = new \GuzzleHttp\Client();
+
+            $startTime = microtime(true);
+            $aiResponse = $client->post("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent", [
+                'query' => ['key' => $geminiApiKey],
+                'json' => [
+                    'contents' => [
+                        [
+                            'parts' => [
+                                ['text' => implode("\n", $prompt)]
+                            ]
+                        ]
                     ]
-                ]);
+                ]
+            ]);
+            $duration = round((microtime(true) - $startTime) * 1000, 2);
 
-                $aiData = json_decode($aiResponse->getBody(), true);
-                $analysisText = $aiData['candidates'][0]['content']['parts'][0]['text'] ?? 'No analysis available.';
+            $aiData = json_decode($aiResponse->getBody(), true);
+            Log::debug('Gemini AI response', [
+                'duration_ms' => $duration,
+                'response_sample' => substr($aiData['candidates'][0]['content']['parts'][0]['text'] ?? '', 0, 100) . '...'
+            ]);
 
-                return response()->json(['report' => nl2br($analysisText)]);
-            } catch (\Exception $e) {
-                return response()->json(['report' => 'Error: ' . $e->getMessage()], 500);
-            }
-        });
+            $analysisText = $aiData['candidates'][0]['content']['parts'][0]['text'] ?? 'No analysis available.';
+
+            Log::info('Successfully generated sales report', [
+                'report_length' => strlen($analysisText)
+            ]);
+
+            return response()->json(['report' => nl2br($analysisText)]);
+        } catch (\Exception $e) {
+            Log::error('Error in analyzeSales()', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            return response()->json(['report' => 'Error: ' . $e->getMessage()], 500);
+        }
+    }
+
+    public function analyzeSalesWithPrompt(Request $request)
+    {
+        Log::debug('Starting analyzeSalesWithPrompt()', [
+            'request_data' => $request->all()
+        ]);
+
+        try {
+            $validated = $request->validate([
+                'prompt' => 'required|string',
+                'existing_report' => 'nullable|string'
+            ]);
+
+            Log::debug('Request validated', [
+                'prompt_length' => strlen($validated['prompt']),
+                'existing_report_length' => strlen($validated['existing_report'] ?? '')
+            ]);
+
+            // Prepare AI Prompt
+            $prompt = [
+                "As a sales analysis assistant, analyze the sales data and provide a professional response to the user's request. " .
+                    "Do not use any section headers, bullet points, asterisks, or special formatting. " .
+                    "Focus on delivering clear, actionable insights in well-structured paragraphs without bullet points or special characters. " .
+                    "User request: " . $validated['prompt'] . ". " .
+                    "Sales report context: " . ($validated['existing_report'] ?? 'No additional context provided') . ". " .
+                    "Provide your analysis in continuous prose with proper business formatting."
+            ];
+
+            Log::debug('Preparing Gemini AI request with prompt', [
+                'prompt_length' => strlen(implode("\n", $prompt)),
+                'prompt_sample' => substr(implode("\n", $prompt), 0, 100) . '...'
+            ]);
+
+            // Call Gemini AI API
+            $geminiApiKey = env('GEMINI_API_KEY');
+            $client = new \GuzzleHttp\Client();
+
+            $startTime = microtime(true);
+            $aiResponse = $client->post("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent", [
+                'query' => ['key' => $geminiApiKey],
+                'json' => [
+                    'contents' => [['parts' => [['text' => implode("\n", $prompt)]]]]
+                ]
+            ]);
+            $duration = round((microtime(true) - $startTime) * 1000, 2);
+
+            $aiData = json_decode($aiResponse->getBody(), true);
+            Log::debug('Gemini AI response', [
+                'duration_ms' => $duration,
+                'response_sample' => substr($aiData['candidates'][0]['content']['parts'][0]['text'] ?? '', 0, 100) . '...'
+            ]);
+
+            $analysisText = $aiData['candidates'][0]['content']['parts'][0]['text'] ?? 'No analysis available.';
+
+            Log::info('Successfully generated prompt-based analysis', [
+                'response_length' => strlen($analysisText),
+                'prompt' => $validated['prompt']
+            ]);
+
+            return response()->json(['report' => nl2br($analysisText)]);
+        } catch (\Exception $e) {
+            Log::error('Error in analyzeSalesWithPrompt()', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'request_data' => $request->all()
+            ]);
+            return response()->json(['report' => 'Error: ' . $e->getMessage()], 500);
+        }
     }
 }

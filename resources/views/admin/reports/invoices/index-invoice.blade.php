@@ -221,6 +221,14 @@
                             aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="customInvoicePrompt" class="form-label">Customize Invoice Report
+                                (optional)</label>
+                            <textarea class="form-control" id="customInvoicePrompt" rows="3"
+                                placeholder="e.g., Focus on unpaid invoices and vendor delays..."></textarea>
+                            <button class="btn btn-warning mt-2" id="sendInvoicePrompt">Ask AI</button>
+                        </div>
+
                         <div id="reportContent"
                             class="d-flex flex-column align-items-center justify-content-center text-center"
                             style="min-height: 300px;">
@@ -229,8 +237,8 @@
                                 <span class="visually-hidden">Loading...</span>
                             </div>
                         </div>
-
                     </div>
+
                     <div class="modal-footer">
                         <button class="btn btn-secondary" id="copyReport">Copy</button>
                         <button class="btn btn-primary" id="downloadPDF">Download PDF</button>
@@ -301,6 +309,31 @@
                                 "<p class='text-danger'>Failed to analyze invoices.</p>");
                         },
                     });
+                });
+            });
+
+            $('#sendInvoicePrompt').click(function() {
+                const prompt = $('#customInvoicePrompt').val();
+
+                if (!prompt.trim()) return alert("Please enter a custom prompt");
+
+                $("#reportContent").html(
+                    `<p>Analyzing with your prompt...</p><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div>`
+                );
+
+                $.ajax({
+                    url: "{{ route('admin.invoices.analyze.custom') }}",
+                    type: "POST",
+                    data: {
+                        custom_prompt: prompt,
+                        _token: '{{ csrf_token() }}'
+                    },
+                    success: function(response) {
+                        $("#reportContent").html(`<p>${response.analysis}</p>`);
+                    },
+                    error: function() {
+                        $("#reportContent").html("<p class='text-danger'>Custom analysis failed.</p>");
+                    }
                 });
             });
         </script>

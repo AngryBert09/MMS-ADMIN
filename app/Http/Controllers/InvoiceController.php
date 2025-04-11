@@ -48,61 +48,121 @@ class InvoiceController extends Controller
     }
 
 
-    public function analyzeInvoices()
+    public function analyzeInvoices(Request $request)
     {
-        $cacheKey = 'invoice_analysis';
-        $cacheTime = 60; // Cache for 60 minutes
+        // Validate custom prompt (optional)
+        $request->validate([
+            'custom_prompt' => 'nullable|string|max:5000',
+        ]);
 
-        return Cache::remember($cacheKey, $cacheTime, function () {
-            // Fetch invoices from external API
-            $apiUrl = "https://logistic2.gwamerchandise.com/api/invoices";
-            $apiKey = env('LOGISTIC2_API_KEY');
+        // Fetch invoices from external API
+        $apiUrl = "https://logistic2.gwamerchandise.com/api/invoices";
+        $apiKey = env('LOGISTIC2_API_KEY');
 
-            $response = Http::withHeaders([
-                'Authorization' => "Bearer $apiKey",
-                'Accept' => 'application/json',
-            ])->get($apiUrl);
+        $response = Http::withHeaders([
+            'Authorization' => "Bearer $apiKey",
+            'Accept' => 'application/json',
+        ])->get($apiUrl);
 
-            if (!$response->successful()) {
-                return response()->json(['analysis' => 'Failed to fetch invoices.'], 500);
-            }
+        if (!$response->successful()) {
+            return response()->json(['analysis' => 'Failed to fetch invoices.'], 500);
+        }
 
-            $invoices = $response['data'];
+        $invoices = $response['data'];
 
-            // Summarize invoice data
-            $invoiceSummary = [
-                'totalInvoices' => count($invoices),
-                'totalAmount' => array_sum(array_column($invoices, 'totalAmount')),
-                'paidInvoices' => count(array_filter($invoices, fn($inv) => $inv['status'] == 'paid')),
-                'unpaidInvoices' => count(array_filter($invoices, fn($inv) => $inv['status'] == 'unpaid')),
-                'cancelledInvoices' => count(array_filter($invoices, fn($inv) => $inv['status'] == 'cancelled')),
-            ];
+        // Summarize invoice data
+        $invoiceSummary = [
+            'totalInvoices' => count($invoices),
+            'totalAmount' => array_sum(array_column($invoices, 'totalAmount')),
+            'paidInvoices' => count(array_filter($invoices, fn($inv) => $inv['status'] === 'paid')),
+            'unpaidInvoices' => count(array_filter($invoices, fn($inv) => $inv['status'] === 'unpaid')),
+            'cancelledInvoices' => count(array_filter($invoices, fn($inv) => $inv['status'] === 'cancelled')),
+        ];
 
-            // Prepare AI Prompt
-            $prompt = [
-                "Generate a detailed and professional budget report in a structured business format without using bullet points, asterisks, numbered lists, or markdown-like formatting. The report should provide a well-written analysis of the budget period, summarizing the total budget requests, allocated funds, and key observations. Highlight the proportion of approved and declined budgets, identifying any patterns or trends in departmental allocations. Discuss factors influencing budget approvals or rejections, such as financial constraints, spending justifications, and departmental priorities. Provide insights into budget utilization, financial efficiency, and any anomalies or notable trends in spending behaviors. Conclude with a summary of findings and recommendations for optimizing financial resource management. The response should flow naturally in clear, structured paragraphs without section titles or symbols, resembling a well-crafted business document, and should be written as a single paragraph. Use the following budget data for analysis: " . json_encode($invoiceSummary, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)
-            ];
+        // Base AI Prompt
+        $prompt = [
+            "Generate a detailed and professional invoice report in structured business prose. Do not use bullets, lists, or formatting symbols. The report should analyze invoice trends and summarize the number of invoices processed, total invoice amount, and the breakdown between paid, unpaid, and cancelled statuses. Discuss possible reasons for unpaid or cancelled invoices such as cash flow issues, vendor delays, or system discrepancies. Offer insights into invoice processing efficiency and payment reliability. Finish with a summary of findings and strategic suggestions for improving invoice management. Use the following invoice data: " . json_encode($invoiceSummary, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)
+        ];
+
+        // Add custom prompt if provided
+        if ($request->filled('custom_prompt')) {
+            $prompt[] = $request->input('custom_prompt');
+        }
+
+        // Call Gemini AI API
+        $geminiApiKey = env('GEMINI_API_KEY');
+        $client = new \GuzzleHttp\Client();
+
+        try {
+            $aiResponse = $client->post("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent", [
+                'query' => ['key' => $geminiApiKey],
+                'json' => [
+                    'contents' => [['parts' => [['text' => implode("\n", $prompt)]]]]
+                ]
+            ]);
+
+            $aiData = json_decode($aiResponse->getBody(), true);
+            $analysisText = $aiData['candidates'][0]['content']['parts'][0]['text'] ?? 'No analysis available.';
+
+            return response()->json(['analysis' => nl2br($analysisText)]);
+        } catch (\Exception $e) {
+            return response()->json(['analysis' => 'AI analysis failed: ' . $e->getMessage()], 500);
+        }
+    }
+
+    public function analyzeInvoicesWithPrompt(Request $request)
+    {
+        $request->validate([
+            'custom_prompt' => 'required|string|max:5000',
+        ]);
+
+        // Fetch invoices
+        $apiUrl = "https://logistic2.gwamerchandise.com/api/invoices";
+        $apiKey = env('LOGISTIC2_API_KEY');
+
+        $response = Http::withHeaders([
+            'Authorization' => "Bearer $apiKey",
+            'Accept' => 'application/json',
+        ])->get($apiUrl);
+
+        if (!$response->successful()) {
+            return response()->json(['analysis' => 'Failed to fetch invoices.'], 500);
+        }
+
+        $invoices = $response['data'];
+
+        $invoiceSummary = [
+            'totalInvoices' => count($invoices),
+            'totalAmount' => array_sum(array_column($invoices, 'totalAmount')),
+            'paidInvoices' => count(array_filter($invoices, fn($inv) => $inv['status'] === 'paid')),
+            'unpaidInvoices' => count(array_filter($invoices, fn($inv) => $inv['status'] === 'unpaid')),
+            'cancelledInvoices' => count(array_filter($invoices, fn($inv) => $inv['status'] === 'cancelled')),
+        ];
+
+        $prompt = "Generate a professional and concise invoice analysis report using only the provided data values. Do not use section headers, bullet points, asterisks, or special formatting. The report must be written in a single structured paragraph, suitable for a business audience. Use formal language and ensure that all numbers and metrics used in the analysis exactly match the data provided. Avoid generalizations or assumptions. Focus on financial performance, payment trends, and any insights into unpaid or cancelled invoices. Maintain clear and accurate reporting.\n\n"
+            . $request->input('custom_prompt')
+            . "\n\nInvoice data: "
+            . json_encode($invoiceSummary, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
 
 
-            // Call Gemini AI API
-            $geminiApiKey = env('GEMINI_API_KEY'); // Store API key in .env
-            $client = new \GuzzleHttp\Client();
+        // Call Gemini
+        $geminiApiKey = env('GEMINI_API_KEY');
+        $client = new \GuzzleHttp\Client();
 
-            try {
-                $response = $client->post("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent", [
-                    'query' => ['key' => $geminiApiKey],
-                    'json' => [
-                        'contents' => [['parts' => [['text' => implode("\n", $prompt)]]]]
-                    ]
-                ]);
+        try {
+            $aiResponse = $client->post("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent", [
+                'query' => ['key' => $geminiApiKey],
+                'json' => [
+                    'contents' => [['parts' => [['text' => $prompt]]]]
+                ]
+            ]);
 
-                $aiResponse = json_decode($response->getBody(), true);
-                $analysisText = $aiResponse['candidates'][0]['content']['parts'][0]['text'] ?? 'No analysis available.';
+            $aiData = json_decode($aiResponse->getBody(), true);
+            $analysisText = $aiData['candidates'][0]['content']['parts'][0]['text'] ?? 'No analysis available.';
 
-                return response()->json(['analysis' => nl2br($analysisText)]);
-            } catch (\Exception $e) {
-                return response()->json(['analysis' => 'AI analysis failed: ' . $e->getMessage()], 500);
-            }
-        });
+            return response()->json(['analysis' => nl2br($analysisText)]);
+        } catch (\Exception $e) {
+            return response()->json(['analysis' => 'AI analysis failed: ' . $e->getMessage()], 500);
+        }
     }
 }

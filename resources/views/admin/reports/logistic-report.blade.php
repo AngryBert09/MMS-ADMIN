@@ -106,7 +106,7 @@
                                                                                 <br>
                                                                                 Qty: {{ $product['quantity'] }} | Sale
                                                                                 Price:
-                                                                                ${{ number_format($product['sale_price'], 2) }}
+                                                                                ₱{{ number_format($product['sale_price'], 2) }}
                                                                             </li>
                                                                         @endforeach
                                                                     </ul>
@@ -140,6 +140,7 @@
         </div>
 
         <!-- Logistics Report Modal -->
+        <!-- MODAL STRUCTURE -->
         <div class="modal fade" id="logisticsReportModal" tabindex="-1" aria-labelledby="logisticsReportModalLabel"
             aria-hidden="true">
             <div class="modal-dialog modal-xl">
@@ -149,8 +150,19 @@
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body" style="max-height: 70vh; overflow-y: auto;">
+
                         <div id="logisticsReportContent">
                             <p>Generating logistics report...</p>
+                        </div>
+                        <div class="mb-3">
+                            <label for="customLogisticsPrompt" class="form-label">Create Report using AI</label>
+                            <textarea class="form-control" id="customLogisticsPrompt" rows="3"
+                                placeholder="e.g., Focus more on vendor delays and root causes..."></textarea>
+
+                            <!-- ✅ Ask AI button below the textarea -->
+                            <div class="mt-2">
+                                <button class="btn btn-warning w-100" id="sendCustomPrompt">Ask AI</button>
+                            </div>
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -162,17 +174,26 @@
             </div>
         </div>
 
+
+        <!-- JS + PDF + LOGIC -->
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
         <script>
             document.addEventListener("DOMContentLoaded", function() {
                 document.getElementById("generate_report").addEventListener("click", function() {
-                    let reportContent = document.getElementById("logisticsReportContent");
+                    const reportContent = document.getElementById("logisticsReportContent");
+                    const customPrompt = document.getElementById("customLogisticsPrompt").value.trim();
+
                     reportContent.innerHTML = "<p>Generating logistics report...</p>";
 
-                    let logisticsModal = new bootstrap.Modal(document.getElementById("logisticsReportModal"));
+                    const logisticsModal = new bootstrap.Modal(document.getElementById("logisticsReportModal"));
                     logisticsModal.show();
 
-                    fetch(`/api/analyze-logistics`)
+                    let url = `/api/analyze-logistics`;
+                    if (customPrompt !== "") {
+                        url += `?prompt=${encodeURIComponent(customPrompt)}`;
+                    }
+
+                    fetch(url)
                         .then(response => {
                             if (!response.ok) {
                                 throw new Error(`HTTP error! Status: ${response.status}`);
@@ -195,7 +216,7 @@
                         });
                 });
 
-                // Copy to clipboard
+                // Copy logistics report to clipboard
                 document.getElementById("copyLogisticsReport").addEventListener("click", function() {
                     let text = document.getElementById("logisticsReportContent").innerText;
                     if (navigator.clipboard) {
@@ -209,17 +230,16 @@
                     }
                 });
 
-                // Download report as PDF
+                // Download logistics report as PDF
                 document.getElementById("downloadLogisticsReport").addEventListener("click", function() {
-                    let {
+                    const {
                         jsPDF
                     } = window.jspdf;
-                    let doc = new jsPDF();
-
-                    let text = document.getElementById("logisticsReportContent").innerText;
-                    let pageWidth = doc.internal.pageSize.getWidth();
-                    let margin = 15;
-                    let textWidth = pageWidth - margin * 2;
+                    const doc = new jsPDF();
+                    const text = document.getElementById("logisticsReportContent").innerText;
+                    const pageWidth = doc.internal.pageSize.getWidth();
+                    const margin = 15;
+                    const textWidth = pageWidth - margin * 2;
 
                     doc.setFont("helvetica", "normal");
                     doc.setFontSize(12);
@@ -228,13 +248,63 @@
                     });
                     doc.setFontSize(10);
 
-                    let splitText = doc.splitTextToSize(text, textWidth);
+                    const splitText = doc.splitTextToSize(text, textWidth);
                     doc.text(splitText, margin, 30);
 
                     doc.save("logistics-report.pdf");
                 });
+
+                // Send custom prompt to generate report
+                document.getElementById("sendCustomPrompt").addEventListener("click", function() {
+                    const customPrompt = document.getElementById("customLogisticsPrompt").value.trim();
+                    const reportContent = document.getElementById("logisticsReportContent");
+
+                    if (!customPrompt) {
+                        alert("Please enter a custom prompt to generate the report.");
+                        return;
+                    }
+
+                    reportContent.innerHTML = "<p>Generating logistics report...</p>";
+
+                    const logisticsModal = new bootstrap.Modal(document.getElementById("logisticsReportModal"));
+                    logisticsModal.show();
+
+                    fetch("/api/analyze-logistics-with-prompt", {
+                            method: "POST",
+                            headers: {
+                                "Content-Type": "application/json",
+                                "Accept": "application/json"
+                            },
+                            body: JSON.stringify({
+                                custom_prompt: customPrompt
+                            })
+                        })
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error(`HTTP error! Status: ${response.status}`);
+                            }
+                            return response.json();
+                        })
+                        .then(data => {
+                            if (data.report && data.report.trim() !== "") {
+                                reportContent.innerHTML =
+                                    `<pre style="white-space: pre-wrap;">${data.report}</pre>`;
+                            } else {
+                                reportContent.innerHTML =
+                                    `<p class="text-danger">No logistics report available.</p>`;
+                            }
+                        })
+                        .catch(error => {
+                            reportContent.innerHTML =
+                                `<p class="text-danger">Error fetching report: ${error.message}</p>`;
+                            console.error("Error fetching logistics report:", error);
+                        });
+                });
+
+
             });
         </script>
+
 
 
 

@@ -102,6 +102,8 @@ Route::delete('/notifications/clear', [NotificationController::class, 'clear'])-
 Route::get('/invoices', [InvoiceController::class, 'getInvoices'])->name('reports.invoices')->middleware('admin');
 Route::get('/admin/invoices/analyze', [InvoiceController::class, 'analyzeInvoices'])
     ->name('admin.invoices.analyze');
+Route::post('/invoices/analyze/custom', [InvoiceController::class, 'analyzeInvoicesWithPrompt'])->name('admin.invoices.analyze.custom');
+
 Route::get('/admin/invoices/{id}', [InvoiceController::class, 'showInvoice'])->name('invoices.show');
 
 

@@ -100,16 +100,10 @@
                                         <span class="fas fa-eye toggle-password" onclick="togglePassword()"></span>
                                     </div>
                                 </div>
-
-                                <!-- Google reCAPTCHA -->
-                                <div class="form-group text-center">
-                                    <label class="form-control-label">Verify You Are Human</label>
-                                    <div class="d-flex justify-content-center">
-                                        <div class="g-recaptcha" data-sitekey="{{ env('GOOGLE_RECAPTCHA_SITE_KEY') }}">
-                                        </div>
+                                <div class="form-group">
+                                    <div class="row">
                                     </div>
                                 </div>
-
 
                                 <!-- Login Button -->
                                 <button class="btn btn-lg btn-block btn-warning w-100 rounded-3"
@@ -130,9 +124,6 @@
                 </div>
             </div>
         </div>
-
-        <!-- Load reCAPTCHA Script -->
-        <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 
     </div>
 

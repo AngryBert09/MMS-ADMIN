@@ -39,7 +39,9 @@
                     <div class="col-sm-12">
                         <div class="card card-table">
                             <div class="card-body">
+
                                 <div class="table-responsive">
+
                                     <table class="table table-center table-hover datatable">
                                         <thead class="thead-light">
                                             <tr>
@@ -63,8 +65,8 @@
                                                             View Products
                                                         </button>
                                                     </td>
-                                                    <td>${{ number_format($sale['total_sum'], 2) }}</td>
-                                                    <td>${{ number_format($sale['earnings'], 2) }}</td>
+                                                    <td>₱{{ number_format($sale['total_sum'], 2) }}</td>
+                                                    <td>₱{{ number_format($sale['earnings'], 2) }}</td>
                                                     <td class="text-end">
                                                         {{ \Carbon\Carbon::parse($sale['timestamp'])->format('Y-m-d H:i') }}
                                                     </td>
@@ -90,9 +92,9 @@
                                                                         <li class="list-group-item">
                                                                             <strong>{{ $item['product_name'] }}</strong><br>
                                                                             Regular Price:
-                                                                            ${{ number_format($item['regular_price'], 2) }}<br>
+                                                                            ₱{{ number_format($item['regular_price'], 2) }}<br>
                                                                             Sale Price:
-                                                                            ${{ number_format($item['sale_price'], 2) }}
+                                                                            ₱{{ number_format($item['sale_price'], 2) }}
                                                                         </li>
                                                                     @endforeach
                                                                 </ul>
@@ -121,15 +123,25 @@
         <!-- Sales Report Modal -->
         <div class="modal fade" id="salesReportModal" tabindex="-1" aria-labelledby="salesReportModalLabel"
             aria-hidden="true">
-            <div class="modal-dialog modal-xl"> <!-- Changed to extra-large modal -->
+            <div class="modal-dialog modal-xl">
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title" id="salesReportModalLabel">Sales Report</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
-                    <div class="modal-body" style="max-height: 70vh; overflow-y: auto;"> <!-- Scrollable content -->
+                    <div class="modal-body" style="max-height: 70vh; overflow-y: auto;">
                         <div id="salesReportContent">
                             <p>Generating sales report...</p>
+                        </div>
+
+                        <!-- AI Analysis Section -->
+                        <div class="mt-4 border-top pt-3">
+                            <h6>Create report (AI) <span class="badge bg-info">Powered by AI</span></h6>
+                            <div class="mb-3">
+                                <textarea class="form-control" id="aiPromptInput" rows="2"
+                                    placeholder="Ask AI to analyze the report (e.g., 'What are the key trends?', 'Suggest improvements')"></textarea>
+                            </div>
+                            <button class="btn btn-info mb-3" id="askAIButton">Ask AI</button>
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -145,9 +157,14 @@
 
         <script>
             document.addEventListener("DOMContentLoaded", function() {
+                let currentReportType = 'auto'; // 'auto' or 'prompt'
+                let generatedReport = '';
+
                 document.getElementById("generate_report").addEventListener("click", function() {
                     let reportContent = document.getElementById("salesReportContent");
                     reportContent.innerHTML = "<p>Generating sales report...</p>";
+                    document.getElementById("aiPromptInput").value = ''; // Clear prompt input
+                    currentReportType = 'auto';
 
                     let salesModal = new bootstrap.Modal(document.getElementById("salesReportModal"));
                     salesModal.show();
@@ -156,6 +173,7 @@
                         .then(response => response.json())
                         .then(data => {
                             if (data.report) {
+                                generatedReport = data.report;
                                 reportContent.innerHTML =
                                     `<pre style="white-space: pre-wrap;">${data.report}</pre>`;
                             } else {
@@ -169,7 +187,50 @@
                         });
                 });
 
-                // Copy to clipboard
+                // AI Analysis functionality
+                document.getElementById('askAIButton').addEventListener('click', function() {
+                    const prompt = document.getElementById('aiPromptInput').value;
+                    const reportContent = document.getElementById('salesReportContent');
+
+                    if (!prompt) {
+                        alert('Please enter a question or prompt for the AI.');
+                        return;
+                    }
+
+                    // Show loading state
+                    reportContent.innerHTML =
+                        '<div class="text-center"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div><p>Analyzing with AI...</p></div>';
+                    currentReportType = 'prompt';
+
+                    // Send both the prompt and existing report data to backend
+                    fetch('/api/analyzeSalesWithPrompt', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                            },
+                            body: JSON.stringify({
+                                prompt: prompt,
+                                existing_report: generatedReport
+                            })
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.report) {
+                                reportContent.innerHTML =
+                                    `<pre style="white-space: pre-wrap;">${data.report}</pre>`;
+                            } else {
+                                reportContent.innerHTML =
+                                    `<p class="text-danger">Failed to generate analysis.</p>`;
+                            }
+                        })
+                        .catch(error => {
+                            reportContent.innerHTML =
+                                `<p class="text-danger">Error analyzing report: ${error.message}</p>`;
+                        });
+                });
+
+                // Copy to clipboard - handles both report types
                 document.getElementById("copyReport").addEventListener("click", function() {
                     let text = document.getElementById("salesReportContent").innerText;
                     navigator.clipboard.writeText(text).then(() => {
@@ -179,7 +240,7 @@
                     });
                 });
 
-                // Download report as PDF
+                // Download report as PDF - handles both report types
                 document.getElementById("downloadReport").addEventListener("click", function() {
                     let {
                         jsPDF
@@ -191,21 +252,20 @@
 
                     doc.setFont("helvetica", "normal");
                     doc.setFontSize(12);
-                    doc.text("Sales Performance Report", pageWidth / 2, 20, {
-                        align: "center"
-                    });
+                    doc.text(currentReportType === 'auto' ? "Sales Performance Report" : "AI Sales Analysis",
+                        pageWidth / 2, 20, {
+                            align: "center"
+                        });
                     doc.setFontSize(10);
                     doc.text(text, 15, 30, {
                         maxWidth: 180,
                         align: "left"
                     });
 
-                    doc.save("sales-report.pdf");
+                    doc.save(currentReportType === 'auto' ? "sales-report.pdf" : "sales-analysis.pdf");
                 });
             });
         </script>
-
-
 
 
     </div>
