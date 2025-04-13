@@ -55,6 +55,10 @@
                         </div>
                     </div>
                 </div>
+
+
+
+
                 <div class="row">
                     <div class="col-xl-3 col-sm-6 col-12">
                         <div class="card inovices-card">
@@ -130,6 +134,27 @@
                         </div>
                     </div>
                 </div>
+
+                <div class="row mb-3 mt-3 g-3">
+                    <div class="col-md-3">
+                        <label for="startDate" class="form-label">From Date</label>
+                        <input type="date" class="form-control" id="startDate">
+                    </div>
+                    <div class="col-md-3">
+                        <label for="endDate" class="form-label">To Date</label>
+                        <input type="date" class="form-control" id="endDate">
+                    </div>
+                    <div class="col-md-4 align-self-end">
+                        <div class="btn-group" role="group">
+                            <button class="btn btn-primary" id="applyFilter">
+                                <i class="fas fa-filter me-1"></i> Apply Filter
+                            </button>
+                            <button class="btn btn-outline-secondary" id="resetFilter">
+                                <i class="fas fa-undo me-1"></i> Reset
+                            </button>
+                        </div>
+                    </div>
+                </div>
                 <div class="row">
                     <div class="col-sm-12">
                         <div class="card card-table">
@@ -148,7 +173,7 @@
                                                 <th class="text-end">Action</th>
                                             </tr>
                                         </thead>
-                                        <tbody>
+                                        <tbody id="invoice_table_body">
                                             @forelse ($invoices as $invoice)
                                                 <tr>
                                                     <td>
@@ -204,6 +229,59 @@
                                         </tbody>
                                     </table>
 
+
+                                    <!-- JavaScript for Date Filtering -->
+                                    <script>
+                                        document.addEventListener('DOMContentLoaded', function() {
+                                            const applyFilter = document.getElementById('applyFilter');
+                                            const resetFilter = document.getElementById('resetFilter');
+                                            const startDate = document.getElementById('startDate');
+                                            const endDate = document.getElementById('endDate');
+                                            const rows = document.querySelectorAll('#invoice_table_body tr');
+
+                                            // Set default dates (last 30 days)
+                                            const today = new Date();
+                                            const thirtyDaysAgo = new Date();
+                                            thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+                                            startDate.valueAsDate = thirtyDaysAgo;
+                                            endDate.valueAsDate = today;
+
+                                            // Apply filter function
+                                            function filterByDate() {
+                                                const start = new Date(startDate.value);
+                                                const end = new Date(endDate.value);
+                                                end.setHours(23, 59, 59); // Include entire end day
+
+                                                rows.forEach(row => {
+                                                    const rowDate = new Date(row.getAttribute('data-date'));
+                                                    if ((!startDate.value || rowDate >= start) &&
+                                                        (!endDate.value || rowDate <= end)) {
+                                                        row.style.display = '';
+                                                    } else {
+                                                        row.style.display = 'none';
+                                                    }
+                                                });
+                                            }
+
+                                            // Initial filter on page load
+                                            filterByDate();
+
+                                            // Event listeners
+                                            applyFilter.addEventListener('click', filterByDate);
+
+                                            resetFilter.addEventListener('click', function() {
+                                                startDate.value = '';
+                                                endDate.value = '';
+                                                filterByDate();
+                                            });
+
+                                            // Optional: Auto-apply filter when dates change
+                                            startDate.addEventListener('change', filterByDate);
+                                            endDate.addEventListener('change', filterByDate);
+                                        });
+                                    </script>
+
                                 </div>
                             </div>
                         </div>
@@ -212,7 +290,8 @@
             </div>
         </div>
         <!-- Invoice Report Modal -->
-        <div class="modal fade" id="reportModal" tabindex="-1" aria-labelledby="reportModalLabel" aria-hidden="true">
+        <div class="modal fade" id="reportModal" tabindex="-1" aria-labelledby="reportModalLabel"
+            aria-hidden="true">
             <div class="modal-dialog modal-xl"> <!-- Enlarged modal -->
                 <div class="modal-content">
                     <div class="modal-header">
@@ -221,13 +300,7 @@
                             aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
-                        <div class="mb-3">
-                            <label for="customInvoicePrompt" class="form-label">Customize Invoice Report
-                                (optional)</label>
-                            <textarea class="form-control" id="customInvoicePrompt" rows="3"
-                                placeholder="e.g., Focus on unpaid invoices and vendor delays..."></textarea>
-                            <button class="btn btn-warning mt-2" id="sendInvoicePrompt">Ask AI</button>
-                        </div>
+
 
                         <div id="reportContent"
                             class="d-flex flex-column align-items-center justify-content-center text-center"
@@ -236,6 +309,13 @@
                             <div class="spinner-border text-primary" role="status">
                                 <span class="visually-hidden">Loading...</span>
                             </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="customInvoicePrompt" class="form-label">Customize Invoice Report
+                                (optional)</label>
+                            <textarea class="form-control" id="customInvoicePrompt" rows="3"
+                                placeholder="e.g., Focus on unpaid invoices and vendor delays..."></textarea>
+                            <button class="btn btn-warning mt-2" id="sendInvoicePrompt">Ask AI</button>
                         </div>
                     </div>
 

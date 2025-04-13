@@ -13,9 +13,14 @@ class DocumentController extends Controller
      */
     public function index()
     {
-        $documents = DB::table('documents')->get(); // Fetch all documents from DB
+        $documents = DB::table('documents')
+            ->where('status', 'Active')
+            ->get();
 
-        return view('admin.documents', compact('documents')); // Pass data to the view
+        return view('admin.documents', [
+            'documents' => $documents,
+            'isArchive' => false
+        ]);
     }
 
     /**
@@ -36,6 +41,7 @@ class DocumentController extends Controller
             'file_path' => $filePath,
             'file_type' => $file->getClientOriginalExtension(),
             'file_size' => $file->getSize(),
+            'status' => 'Active', // Default status
             'uploaded_by' => auth()->user()->id, // Store user ID instead of name
             'created_at' => now(),
             'updated_at' => now(),
@@ -77,20 +83,23 @@ class DocumentController extends Controller
     public function delete($id)
     {
         $document = DB::table('documents')->where('id', $id)->first();
+
         if (!$document) {
             return redirect()->back()->with('error', 'Document not found.');
         }
 
-        // Delete file from storage
-        Storage::delete('public/' . $document->file_path);
+        // Instead of deleting, update status to 'Inactive'
+        DB::table('documents')
+            ->where('id', $id)
+            ->update([
+                'status' => 'Inactive',
+                'updated_at' => now()
+            ]);
 
-        // Remove record from the database
-        DB::table('documents')->where('id', $id)->delete();
+        // Log status change action
+        $this->logDocumentHistory(auth()->id(), $document->title, 'status changed to Inactive');
 
-        // Log delete action
-        $this->logDocumentHistory(auth()->id(), $document->title, 'deleted');
-
-        return redirect()->back()->with('success', 'Document deleted successfully.');
+        return redirect()->back()->with('success', 'Document status changed to Inactive successfully.');
     }
 
     /**
@@ -165,5 +174,44 @@ class DocumentController extends Controller
             'action' => $message, // Store the friendly message
             'timestamp' => now(),
         ]);
+    }
+
+    /**
+     * Handle document archives.
+     */
+    public function archives()
+    {
+        $documents = DB::table('documents')
+            ->where('status', 'Inactive')
+            ->get();
+
+        return view('admin.documents', [
+            'documents' => $documents,
+            'isArchive' => true
+        ]);
+    }
+
+    /**
+     * Handle document restoration.
+     */
+
+    public function restore($id)
+    {
+        $document = DB::table('documents')->where('id', $id)->first();
+
+        if (!$document) {
+            return redirect()->back()->with('error', 'Document not found.');
+        }
+
+        DB::table('documents')
+            ->where('id', $id)
+            ->update([
+                'status' => 'Active',
+                'updated_at' => now()
+            ]);
+
+        $this->logDocumentHistory(auth()->id(), $document->title, 'restored from archive');
+
+        return redirect()->route('documents.archives')->with('success', 'Document restored successfully.');
     }
 }

@@ -36,6 +36,7 @@
                         <div class="card card-table">
                             <div class="card-body">
                                 <div class="table-responsive">
+
                                     <table class="table table-center table-hover datatable">
                                         <thead class="thead-light">
                                             <tr>
@@ -44,7 +45,8 @@
                                                 <th>Order Date</th>
                                                 <th>Expected Delivery</th>
                                                 <th>Status</th>
-                                                <th class="text-end">Created At</th>
+                                                <th>Created At</th>
+                                                <th class="text-end">Actions</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -58,19 +60,67 @@
                                                         <td>{{ \Carbon\Carbon::parse($procurement['delivery_date'])->format('Y-m-d') }}
                                                         </td>
                                                         <td>
-                                                            <span
-                                                                class="badge bg-{{ $procurement['order_status'] == 'On Order' ? 'info' : 'warning' }}">
+                                                            @php
+                                                                $statusClass =
+                                                                    [
+                                                                        'pending' => 'bg-secondary',
+                                                                        'on order' => 'bg-info',
+                                                                        'approved' => 'bg-success',
+                                                                        'rejected' => 'bg-danger',
+                                                                        'delivered' => 'bg-primary',
+                                                                        'cancelled' => 'bg-warning',
+                                                                    ][strtolower($procurement['order_status'])] ??
+                                                                    'bg-secondary';
+                                                            @endphp
+                                                            <span class="badge {{ $statusClass }}">
                                                                 {{ ucfirst($procurement['order_status']) }}
                                                             </span>
                                                         </td>
-                                                        <td class="text-end">
+                                                        <td>
                                                             {{ \Carbon\Carbon::parse($procurement['created_at'])->format('Y-m-d H:i') }}
                                                         </td>
+                                                        <td class="text-end">
+                                                            @if (strtolower($procurement['order_status']) == 'pending')
+                                                                <div class="btn-group" role="group">
+                                                                    <form
+                                                                        action="{{ route('procurements.update', $procurement['id']) }}"
+                                                                        method="POST" style="display:inline;">
+                                                                        @csrf
+                                                                        @method('PATCH')
+                                                                        <input type="hidden" name="status"
+                                                                            value="approved">
+                                                                        <button type="submit"
+                                                                            class="btn btn-sm btn-success me-1"
+                                                                            onclick="return confirm('Approve this procurement?')">
+                                                                            <i class="fas fa-check"></i> Approve
+                                                                        </button>
+                                                                    </form>
+
+                                                                    <form
+                                                                        action="{{ route('procurements.update', $procurement['id']) }}"
+                                                                        method="POST" style="display:inline;">
+                                                                        @csrf
+                                                                        @method('PATCH')
+                                                                        <input type="hidden" name="status"
+                                                                            value="rejected">
+                                                                        <button type="submit"
+                                                                            class="btn btn-sm btn-danger"
+                                                                            onclick="return confirm('Reject this procurement?')">
+                                                                            <i class="fas fa-times"></i> Reject
+                                                                        </button>
+                                                                    </form>
+
+                                                                </div>
+                                                            @else
+                                                                <span class="text-muted">Action completed</span>
+                                                            @endif
+                                                        </td>
+
                                                     </tr>
                                                 @endforeach
                                             @else
                                                 <tr>
-                                                    <td colspan="6" class="text-center text-muted">No procurements
+                                                    <td colspan="7" class="text-center text-muted">No procurements
                                                         available.</td>
                                                 </tr>
                                             @endif

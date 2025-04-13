@@ -86,12 +86,15 @@ Route::get('/email/{uid}', [EmailController::class, 'show']);
 Route::get('/sales-report', [SalesReportController::class, 'index'])->name('reports.sales'); // Fetch alssl sales
 
 
+//DOCUMENTS
 Route::get('/documents', [DocumentController::class, 'index'])->name('admin.documents');
 Route::post('/documents/upload', [DocumentController::class, 'store'])->name('documents.upload');
 Route::get('/documents/view/{id}', [DocumentController::class, 'view'])->name('documents.view');
 Route::get('/documents/download/{id}', [DocumentController::class, 'download'])->name('documents.download');
 Route::delete('/documents/delete/{id}', [DocumentController::class, 'delete'])->name('documents.delete');
 Route::get('/document-history', [DocumentController::class, 'getDocumentHistory']);
+Route::get('/documents/archives', [DocumentController::class, 'archives'])->name('documents.archives');
+Route::patch('/documents/{id}/restore', [DocumentController::class, 'restore'])->name('documents.restore');
 
 
 Route::get('/notifications-counts', [NotificationController::class, 'getNotifications'])->name('notifications.get');
@@ -118,6 +121,8 @@ Route::get('/user/{id}/activity-logs', [UserController::class, 'getUserActivityL
 Route::get('/budgets', [BudgetReportController::class, 'index'])->name('budgets.index');
 Route::get('/logistics', [LogisticReportController::class, 'index'])->name('logistics.index');
 Route::get('/approvals/procurement', [ProcurementController::class, 'index'])->name('approvals.procurement');
+Route::patch('/procurements/{id}', [ProcurementController::class, 'update'])->name('procurements.update');
+
 
 
 

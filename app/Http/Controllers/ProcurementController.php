@@ -40,4 +40,35 @@ class ProcurementController extends Controller
             return back()->with('error', 'Server Error. Please try again later.');
         }
     }
+
+    public function update(Request $request, $id)
+    {
+        try {
+            $status = $request->input('status'); // 'approved' or 'rejected'
+
+            $apiUrl = "https://logistic1.gwamerchandise.com/api/procurements/{$id}";
+
+            $apiKey = env('LOGISTIC1_API_KEY');
+
+            if (!$apiKey) {
+                return back()->with('error', 'Missing API Key');
+            }
+
+            $response = Http::withHeaders([
+                'Accept' => 'application/json',
+                'Authorization' => "Bearer $apiKey",
+            ])->patch($apiUrl, [
+                'order_status' => $status,
+            ]);
+
+            if ($response->successful()) {
+                return back()->with('success', "Procurement {$status} successfully.");
+            } else {
+                return back()->with('error', 'Failed to update procurement status.');
+            }
+        } catch (\Exception $e) {
+            Log::error('Procurement Update Error: ' . $e->getMessage());
+            return back()->with('error', 'Server Error. Please try again later.');
+        }
+    }
 }

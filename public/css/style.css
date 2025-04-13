@@ -725,15 +725,15 @@ s .text-success,
 .open>.dropdown-toggle.btn-primary.focus,
 .open>.dropdown-toggle.btn-primary:focus,
 .open>.dropdown-toggle.btn-primary:hover {
-    background-color: #621aff;
-    border          : 1px solid #621aff
+    background-color: #ffbc34;
+    border          : 1px solid #ffbc34
 }
 
 .btn-primary.active:not(:disabled):not(.disabled),
 .btn-primary:active:not(:disabled):not(.disabled),
 .show>.btn-primary.dropdown-toggle {
-    background-color: #621aff;
-    border-color    : #621aff;
+    background-color: #ce982e;
+    border-color    : #ce982e;
     color           : #fff
 }
 
