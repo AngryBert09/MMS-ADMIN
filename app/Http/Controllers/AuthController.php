@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Session;
 use App\Mail\TwoFactorCodeMail;
 use App\Traits\ActivityLogger;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Http;
 
 class AuthController extends Controller
 {
@@ -33,8 +34,24 @@ class AuthController extends Controller
         $request->validate([
             'email' => 'required|email',
             'password' => 'required',
+            'g-recaptcha-response' => 'required', // Ensure reCAPTCHA is submitted
         ]);
 
+        // Verify Google reCAPTCHA
+        $response = Http::asForm()->post('https://www.google.com/recaptcha/api/siteverify', [
+            'secret' => env('GOOGLE_RECAPTCHA_SECRET_KEY'),
+            'response' => $request->input('g-recaptcha-response'),
+            'remoteip' => $request->ip(),
+        ]);
+
+        $responseData = $response->json();
+
+        if (!$responseData['success']) {
+            Log::warning('reCAPTCHA verification failed', ['ip' => $request->ip()]);
+            return redirect()->route('auth.login')->withErrors(['captcha' => 'reCAPTCHA verification failed.'])->withInput();
+        }
+
+        // Proceed with normal login process after reCAPTCHA passes
         $user = User::where('email', $request->email)->first();
 
         if (!$user) {
@@ -57,16 +74,16 @@ class AuthController extends Controller
             return redirect()->route('auth.login')->withErrors(['email' => 'Access denied. Only admins can log in.'])->withInput();
         }
 
-        // Generate a 6-digit OTP code
+        // Generate 2FA OTP
         $otp = rand(100000, 999999);
 
-        // Save OTP in the session
+        // Save OTP in session
         Session::put('2fa:user_id', $user->id);
         Session::put('2fa:otp', $otp);
         Session::put('2fa:email', $user->email);
         Session::put('2fa:expires_at', now()->addMinutes(5)); // OTP expires in 5 minutes
 
-        // Send OTP to user via email
+        // Send OTP via email
         Mail::to($user->email)->send(new TwoFactorCodeMail($otp));
 
         Log::info('2FA OTP sent', ['email' => $user->email, 'otp' => $otp]);
@@ -77,6 +94,7 @@ class AuthController extends Controller
         // Redirect to 2FA verification page
         return redirect()->route('auth.2fa.verify')->with('success', 'A verification code has been sent to your email.');
     }
+
 
     /**
      * Handle logout.
