@@ -93,7 +93,8 @@ class SalesReportController extends Controller
             // Prepare AI Prompt
             $prompt = [
                 "Generate a professional sales analysis as a single, continuous narrative paragraph. " .
-                    "Do not use any section headers, bullet points, asterisks, or special formatting. " .
+                    "Do not use any section headers, bullet points, asterisks, or special formatting" .
+                    "Strictly, use peso sign only for currency" .
                     "Present all insights in flowing business prose that naturally incorporates: " .
                     "1) Key performance metrics " .
                     "2) Product performance analysis " .
@@ -175,7 +176,8 @@ class SalesReportController extends Controller
             // Prepare AI Prompt
             $prompt = [
                 "As a sales analysis assistant, analyze the sales data and provide a professional response to the user's request. " .
-                    "Do not use any section headers, bullet points, asterisks, or special formatting. " .
+                    "Do not use any section headers, bullet points, asterisks, or special formatting" .
+                    "Strictly, use Peso sign only for currency" .
                     "Focus on delivering clear, actionable insights in well-structured paragraphs without bullet points or special characters. " .
                     "User request: " . $validated['prompt'] . ". " .
                     "Sales report context: " . ($validated['existing_report'] ?? 'No additional context provided') . ". " .

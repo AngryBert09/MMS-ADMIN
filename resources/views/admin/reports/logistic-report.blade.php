@@ -229,6 +229,7 @@
                         <div id="logisticsReportContent">
                             <p>Generating logistics report...</p>
                         </div>
+                        <hr />
                         <div class="mb-3">
                             <label for="customLogisticsPrompt" class="form-label">Create Report using AI</label>
                             <textarea class="form-control" id="customLogisticsPrompt" rows="3"

@@ -81,7 +81,7 @@ class InvoiceController extends Controller
 
         // Base AI Prompt
         $prompt = [
-            "Generate a detailed and professional invoice report in structured business prose. Do not use bullets, lists, or formatting symbols. The report should analyze invoice trends and summarize the number of invoices processed, total invoice amount, and the breakdown between paid, unpaid, and cancelled statuses. Discuss possible reasons for unpaid or cancelled invoices such as cash flow issues, vendor delays, or system discrepancies. Offer insights into invoice processing efficiency and payment reliability. Finish with a summary of findings and strategic suggestions for improving invoice management. Use the following invoice data: " . json_encode($invoiceSummary, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)
+            "Generate a detailed and professional invoice report in structured business prose. Do not use bullets, lists, or formatting symbols. The report should analyze invoice trends and summarize the number of invoices processed, total invoice amount, and the breakdown between paid, unpaid, and cancelled statuses. Discuss possible reasons for unpaid or cancelled invoices such as cash flow issues, vendor delays, or system discrepancies. Offer insights into invoice processing efficiency and payment reliability. Finish with a summary of findings and strategic suggestions for improving invoice management. Use the following invoice data, use peso sign only: " . json_encode($invoiceSummary, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)
         ];
 
         // Add custom prompt if provided
@@ -139,7 +139,7 @@ class InvoiceController extends Controller
             'cancelledInvoices' => count(array_filter($invoices, fn($inv) => $inv['status'] === 'cancelled')),
         ];
 
-        $prompt = "Generate a professional and concise invoice analysis report using only the provided data values. Do not use section headers, bullet points, asterisks, or special formatting. The report must be written in a single structured paragraph, suitable for a business audience. Use formal language and ensure that all numbers and metrics used in the analysis exactly match the data provided. Avoid generalizations or assumptions. Focus on financial performance, payment trends, and any insights into unpaid or cancelled invoices. Maintain clear and accurate reporting.\n\n"
+        $prompt = "Generate a professional and concise invoice analysis report using only the provided data values. Do not use section headers, use peso sign, bullet points, asterisks, or special formatting. The report must be written in a single structured paragraph, suitable for a business audience. Use formal language and ensure that all numbers and metrics used in the analysis exactly match the data provided. Avoid generalizations or assumptions. Focus on financial performance, payment trends, and any insights into unpaid or cancelled invoices. Maintain clear and accurate reporting. Strictly, use peso sign only\n\n"
             . $request->input('custom_prompt')
             . "\n\nInvoice data: "
             . json_encode($invoiceSummary, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);

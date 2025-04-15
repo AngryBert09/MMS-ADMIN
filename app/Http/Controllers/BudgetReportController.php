@@ -64,7 +64,7 @@ class BudgetReportController extends Controller
 
         // Prepare AI Prompt
         $prompt = [
-            "Provide a detailed financial analysis of the budget report from {$startDate} to {$endDate}. Offer an insightful review of the total budget requests, allocated funds, and the proportion of approvals versus declines. Discuss trends in departmental budget allocations, identifying any inconsistencies or patterns. Examine key factors influencing approval or rejection rates, including financial constraints, departmental priorities, or spending justifications. Analyze budget utilization efficiency, highlighting any significant discrepancies or anomalies in spending behaviors. Conclude with a comprehensive summary of findings and practical recommendations for optimizing financial resource management. Do not use any section headers, bullet points, asterisks, or special formatting. Use the following budget data for analysis: " . json_encode($budgetSummary, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)
+            "Provide a detailed financial analysis of the budget report from {$startDate} to {$endDate}. Offer an insightful review of the total budget requests, allocated funds, and the proportion of approvals versus declines. Discuss trends in departmental budget allocations, identifying any inconsistencies or patterns. Examine key factors influencing approval or rejection rates, including financial constraints, departmental priorities, or spending justifications. Analyze budget utilization efficiency, highlighting any significant discrepancies or anomalies in spending behaviors. Conclude with a comprehensive summary of findings and practical recommendations for optimizing financial resource management. Do not use any section headers, bullet points, asterisks, or specialformatting. Strictly, use peso sign only. Use the following budget data for analysis: " . json_encode($budgetSummary, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)
         ];
 
         // Call Gemini AI API
@@ -125,7 +125,7 @@ class BudgetReportController extends Controller
         ];
 
         // Construct final prompt
-        $finalPrompt = "You are a financial analysis assistant. Based on the following user prompt, generate a professional, detailed budget report:\n\n Do not use any section headers, bullet points, asterisks, or special formatting."
+        $finalPrompt = "You are a financial analysis assistant. Based on the following user prompt, generate a professional, detailed budget report:\n\n Do not use any section headers, bullet points, asterisks, or special formatting. Strictly, use peso sign only"
             . "User Prompt: {$promptInput}\n\n"
             . "Available Budget Data:\n" . json_encode($budgetSummary, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)
             . "\n\n" . ($existingReport ? "Existing Summary:\n{$existingReport}" : '');

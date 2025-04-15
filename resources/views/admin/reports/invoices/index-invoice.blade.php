@@ -310,6 +310,7 @@
                                 <span class="visually-hidden">Loading...</span>
                             </div>
                         </div>
+                        <hr />
                         <div class="mb-3">
                             <label for="customInvoicePrompt" class="form-label">Customize Invoice Report
                                 (optional)</label>

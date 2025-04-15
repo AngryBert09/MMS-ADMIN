@@ -188,15 +188,17 @@
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body" style="max-height: 70vh; overflow-y: auto;"> <!-- Scrollable content -->
+
+
+                        <div id="budgetReportContent">
+                            <p>Generating budget report...</p>
+                        </div>
+                        <hr />
                         <div class="mb-3">
                             <label for="customPrompt" class="form-label">Enter a custom prompt for AI:</label>
                             <textarea class="form-control" id="customPrompt" rows="3"
                                 placeholder="e.g., Give me a summary focused on cost-saving trends..."></textarea>
                             <button class="btn btn-outline-primary mt-2" id="generateWithPrompt">Ask AI</button>
-                        </div>
-                        <hr />
-                        <div id="budgetReportContent">
-                            <p>Generating budget report...</p>
                         </div>
                     </div>
                     <div class="modal-footer">
