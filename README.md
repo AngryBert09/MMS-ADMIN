@@ -23,5 +23,5 @@ Whether you're managing a single store or an entire retail chain, this system of
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/your-username/merchandising-management-system.git
+   git clone https://github.com/AngryBert09/MMS-ADMIN.git
    cd merchandising-management-system
