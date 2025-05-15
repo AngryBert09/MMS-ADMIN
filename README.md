@@ -1,6 +1,25 @@
 # 🛍️ Merchandising Management System: Admin Panel with AI-Powered Report Automation
 
-The **Merchandising Management System** is a robust, admin-focused platform designed to streamline and optimize merchandising operations. Tailored for efficiency and control, this system empowers administrators to oversee inventory, track product performance, and manage retail data — all from a centralized interface.
+[![Laravel](https://img.shields.io/badge/Laravel-FF2D20?style=for-the-badge&logo=laravel&logoColor=white)](https://laravel.com)
+[![PHP](https://img.shields.io/badge/PHP-777BB4?style=for-the-badge&logo=php&logoColor=white)](https://www.php.net)
+[![MySQL](https://img.shields.io/badge/MySQL-4479A1?style=for-the-badge&logo=mysql&logoColor=white)](https://www.mysql.com/)
+[![Bootstrap](https://img.shields.io/badge/Bootstrap-7952B3?style=for-the-badge&logo=bootstrap&logoColor=white)](https://getbootstrap.com/)
+[![AI Reports](https://img.shields.io/badge/AI_Reports-Automated-blueviolet?style=for-the-badge&logo=openai)]()
+
+---
+
+## 📋 Overview
+
+The **Merchandising Management System** is a robust, admin-focused platform designed to streamline and optimize merchandising operations. Tailored for efficiency and control, this system empowers administrators to:
+
+- Oversee inventory
+- Track product performance
+- Manage retail data and reporting
+- Automate complex reports using AI
+
+It provides a centralized interface that drives faster decision-making, improves merchandising workflows, and enhances retail data intelligence.
+
+---
 
 ## ✨ Key Feature: AI-Powered Report Automation
 
@@ -22,7 +41,13 @@ Whether you're managing a single store or an entire retail chain, this system of
 ## ⚙️ Setup Instructions
 
 1. **Clone the repository**
-   <br>
-   ```bash
-   git clone https://github.com/AngryBert09/MMS-ADMIN.git
-   cd merchandising-management-system
+ 
+ ```bash
+ git clone https://github.com/AngryBert09/MMS-ADMIN.git
+ cd merchandising-management-system
+ ```
+
+2. **Install the dependencies**
+   
+ ```bash
+  composer install
